@@ -1,1 +1,1 @@
-# huntwumpus
+# Hunt the Wumpus
