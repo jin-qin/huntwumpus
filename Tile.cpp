@@ -18,7 +18,8 @@ public:
     int hasGold;
     int hasPit;
     int playerBeenHere;
-    Tile(int e, int b, int s, int w, int g, int p, int pbh) {
+    int determined;
+    Tile(int e, int b, int s, int w, int g, int p, int pbh, int d) {
         isEntrance = e;
         isBreezy = b;
         isSmelly = s;
@@ -26,5 +27,6 @@ public:
         hasGold = g;
         hasPit = p;
         playerBeenHere = pbh;
+        determined = d;
     }
 };
