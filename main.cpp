@@ -11,9 +11,6 @@
 #include "Player.cpp"
 using namespace std;
 
-
-
-
 int main(int argc, const char * argv[]) {
     Board board;
     board.displayBoard();

@@ -9,8 +9,6 @@
 #include "Tile.cpp"
 using namespace std;
 
-
-
 class Board {
 public:
     Tile array[5][5] =
