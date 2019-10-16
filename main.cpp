@@ -13,7 +13,7 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
     Board board;
-    board.displayBoard();
+    board.display_board();
     Player player;
     cout << player.currPosX << " " << player.currPosY << endl;
     
