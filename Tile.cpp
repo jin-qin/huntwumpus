@@ -1,32 +1,65 @@
-//
-//  Tile.cpp
-//  
-//
-//  Created by Jonathan Redwine on 10/9/19.
-//
+#include "Tile.h"
 
-#include <stdio.h>
-using namespace std;
+Tile::Tile(TileState ts)
+    : m_state(ts)
+{
+}
 
+Tile::Tile(int ts)
+    : m_state(static_cast<Tile::TileState>(ts))
+{
+}
 
-class Tile {
-public:
-    int isEntrance;
-    int isBreezy;
-    int isSmelly;
-    int hasWumpus;
-    int hasGold;
-    int hasPit;
-    int playerBeenHere;
-    int determined;
-    Tile(int e, int b, int s, int w, int g, int p, int pbh, int d) {
-        isEntrance = e;
-        isBreezy = b;
-        isSmelly = s;
-        hasWumpus = w;
-        hasGold = g;
-        hasPit = p;
-        playerBeenHere = pbh;
-        determined = d;
-    }
-};
+void Tile::set_state(Tile::TileState ts)
+{
+    m_state = ts;
+}
+
+void Tile::set_state(int ts)
+{
+    set_state(static_cast<Tile::TileState>(ts));
+}
+
+Tile::TileState Tile::state()
+{
+    return m_state;
+}
+
+void Tile::update_state()
+{
+    // TO DO
+}
+
+bool Tile::is_entrance()
+{
+    return 0 != (m_state & TS_ENTRANCE);
+}
+
+bool Tile::is_breezy()
+{
+    return 0 != (m_state & TS_BREEZY);
+}
+bool Tile::is_smelly()
+{
+    return 0 != (m_state & TS_SMELLY);
+}
+bool Tile::has_wumpus()
+{
+    return 0 != (m_state & TS_WUMPUS);
+}
+bool Tile::has_gold()
+{
+    return 0 != (m_state & TS_GOLD);
+}
+bool Tile::has_pit()
+{
+    return 0 != (m_state & TS_PIT);
+}
+bool Tile::player_been_here()
+{
+    return 0 != (m_state & TS_PLAYER_HERE);
+}
+bool Tile::determined()
+{
+    return 0 != (m_state & TS_DETERMINED);
+}

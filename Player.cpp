@@ -5,52 +5,9 @@
 //  Created by Jonathan Redwine on 10/9/19.
 //
 
-#include <stdio.h>
+#include "Player.h"
+#include <iostream>
 using namespace std;
-
-
-class Player {
-public:
-    int currPosX;
-    int currPosY;
-    Tile knownBoard[5][5] =
-    {{Tile(1,0,0,0,0,0,1,1), //0,0
-        Tile(0,2,2,0,2,0,0,0), //0,1
-        Tile(0,2,2,2,2,2,0,0), //0,2
-        Tile(0,2,2,2,2,2,0,0), //0,3
-        Tile(0,2,2,2,2,2,0,0)}, //0,4
-        {Tile(0,2,2,0,2,0,0,0), //1,0
-            Tile(0,2,2,2,2,2,0,0), //1,1
-            Tile(0,2,2,2,2,2,0,0), //1,2
-            Tile(0,2,2,2,2,2,0,0), //1,3
-            Tile(0,2,2,2,2,2,0,0)}, //1,4
-        {Tile(0,2,2,2,2,2,0,0), //2,0
-            Tile(0,2,2,2,2,2,0,0), //2,1
-            Tile(0,2,2,2,2,2,0,0), //2,2
-            Tile(0,2,2,2,2,2,0,0), //2,3
-            Tile(0,2,2,2,2,2,0,0)}, //2,4
-        {Tile(0,2,2,2,2,2,0,0), //3,0
-            Tile(0,2,2,2,2,2,0,0), //3,1
-            Tile(0,2,2,2,2,2,0,0), //3,2
-            Tile(0,2,2,2,2,2,0,0), //3,3
-            Tile(0,2,2,2,2,2,0,0)}, //3,4
-        {Tile(0,2,2,2,2,2,0,0), //4,0
-            Tile(0,2,2,2,2,2,0,0), //4,1
-            Tile(0,2,2,2,2,2,0,0), //4,2
-            Tile(0,2,2,2,2,2,0,0), //4,3
-            Tile(0,2,2,2,2,2,0,0)} //4,4
-    };
-
-    Player() {
-        currPosX = 0;
-        currPosY = 0;
-    }
-    
-    void move(int thisMove);
-    int selectMove();
-    int findTileNotYetVisited(int possibleMoves[4]);
-};
-
 
 void Player::move(int thisMove) {
     if (thisMove == 0) { // moving north
@@ -67,7 +24,7 @@ void Player::move(int thisMove) {
     }
 }
 
-int Player::selectMove() {
+int Player::select_move() {
     int thisMove = -1;
     int possibleMoves[4] = {-1, -1, -1, -1}; // given currPos, possible board movements
     if (currPosX == 0) { // if on the left edge, can only move right in x-direction
@@ -88,32 +45,32 @@ int Player::selectMove() {
     }
     
     // if there are no adjacent dangers
-    if (knownBoard[currPosX][currPosY].isBreezy == 0 && knownBoard[currPosX][currPosY].isSmelly == 0) {
-        thisMove = findTileNotYetVisited(possibleMoves);
+    if (!knownBoard[currPosX][currPosY].is_breezy() && !knownBoard[currPosX][currPosY].is_smelly()) {
+        thisMove = find_tile_not_yet_visited(possibleMoves);
     }
     
     move(thisMove);
     return thisMove;
 }
 
-int Player::findTileNotYetVisited(int possibleMoves[4]) {
+int Player::find_tile_not_yet_visited(int possibleMoves[4]) {
     if (possibleMoves[0] != -1) { // check if north tile has been visited
-        if (knownBoard[currPosX][currPosY-1].playerBeenHere == 0) {
+        if (!knownBoard[currPosX][currPosY-1].player_been_here()) {
             return possibleMoves[0];
         }
     }
     if (possibleMoves[1] != -1) { // check if east tile has been visited
-        if (knownBoard[currPosX+1][currPosY].playerBeenHere == 0) {
+        if (!knownBoard[currPosX+1][currPosY].player_been_here()) {
             return possibleMoves[1];
         }
     }
     if (possibleMoves[2] != -1) { // check if south tile has been visited
-        if (knownBoard[currPosX][currPosY+1].playerBeenHere == 0) {
+        if (!knownBoard[currPosX][currPosY+1].player_been_here()) {
             return possibleMoves[2];
         }
     }
     if (possibleMoves[3] != -1) { // check is west tile has been visited
-        if (knownBoard[currPosX-1][currPosY].playerBeenHere == 0) {
+        if (!knownBoard[currPosX-1][currPosY].player_been_here()) {
             return possibleMoves[3];
         }
     }

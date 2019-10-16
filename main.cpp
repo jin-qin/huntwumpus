@@ -7,8 +7,8 @@
 //
 
 #include <iostream>
-#include "Board.cpp"
-#include "Player.cpp"
+#include "Board.h"
+#include "Player.h"
 using namespace std;
 
 int main(int argc, const char * argv[]) {
@@ -17,7 +17,7 @@ int main(int argc, const char * argv[]) {
     Player player;
     cout << player.currPosX << " " << player.currPosY << endl;
     
-    cout << player.selectMove() << endl;
+    cout << player.select_move() << endl;
     
     cout << player.currPosX << " " << player.currPosY << endl;
     
