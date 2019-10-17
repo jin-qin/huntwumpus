@@ -1,54 +1,31 @@
-#include<iostream>
-#include<cstdlib>
-#include<cstdio>
-#include<Tile.cpp>
+#include "KnowledgeBase.h"
+#include "Tile.h"
+#include "common.h"
 
 using namespace std;
 
-class Knowledge {
-public:
-    int isEntrance;// Is this var necessary?
-    int isBreezy;
-    int isSmelly;
-    int hasWumpus;
-    int hasGold;
-    int hasPit;
-    int hasNothing;
-    int playerBeenHere;
-    int isInferred;
-    int isSafe;
-    Knowledge(int e, int b, int s, int w, int g, int p, int n, int pbh, int i, int s) {
-        isEntrance = e;
-        isBreezy = b;
-        isSmelly = s;
-        hasWumpus = w;
-        hasGold = g;
-        hasPit = p;
-        hasNothing = n;
-        playerBeenHere = pbh;
-        isInferred = i;
-        isSafe = s;
-    }
-};
+KnowledgeBase::KnowledgeBase(int row_len, int col_len)
+             :m_row_len(row_len)
+             :m_col_len(col_len)
+{ 
+    create_knowledge(row_len,col_len);   
+}
 
-class Knowledge_base{
-public:
-    void add_knowledge(int pos_x, int pos_y, int status);
-    void create_knowledge(int x, int y);
-    void analyze();
-    void update_knowledge();
-    int x_len, y_len;
-};
+KnowledgeBase::~KnowledgeBase(void){
+    safe_delete(m_map);
+}
+    
+void KnowledgeBase::create_knowledge(int x, int y){ // Initialize the knowledge board
+    safe_delete(m_map);
 
-void Knowledge_base::create_knowledge(int x, int y){ // Initialize the knowledge board
-    Knowledge map[x][y];
+    m_map = new Tile[x][y]();
     for(int i = 0; i < x; i++)
         for(int j = 0; j < y; j++){
-            map[i][j] = Knowledge(2,2,2,2,2,2,2,0,0,2);
+            m_map[i][j] = Tile(Tile::TS_UNKNOWN);
         }
 };
 
-void Knowledge_base::add_knowledge(int pos_x, int pos_y, Tile status){ // Receive the new information and add to current map
+void KnowledgeBase::add_knowledge(int pos_x, int pos_y, Tile::TileState status){ // Receive the new information and add to current map
     //if there are pit, wumpus, gold, the game is over. Therefore in this case, the program will not call this func.
     //So we just need to think about breezy and smelly.
     map[pos_x][pos_y].isSafe = 1;
@@ -144,11 +121,11 @@ void Knowledge_base::add_knowledge(int pos_x, int pos_y, Tile status){ // Receiv
     }
 };
 
-void Knowledge_base::analyze(int cur_x, int cur_y){//use the current information to infer the known space
+void KnowledgeBasee::analyze(int cur_x, int cur_y){//use the current information to infer the known space
     
 };
 
-void Knowledge_base::update_knowledge(){
+void KnowledgeBase::update_knowledge(){
 
 }
 
