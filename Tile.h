@@ -24,6 +24,10 @@ public:
 
   void set_state(TileState ts);
   void set_state(int ts);
+  void add_state(TileState ts);
+  void add_state(int ts);
+  void remove_state(TileState ts);
+  void remove_state(int ts);
   TileState state();
 
   void update_state();
