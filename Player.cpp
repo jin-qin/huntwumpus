@@ -3,7 +3,6 @@
  */
 
 #include "Player.h"
-#include "Board.h"
 #include <cmath>
 #include <iostream>
 using namespace std;
@@ -11,7 +10,14 @@ using namespace std;
 Player::Player() {
 }
 
+void Player::set_board(std::weak_ptr<Board> board) {
+    m_board = board;
+}
+
 void Player::move(MoveDirection md) {
+    auto board = m_board.lock();
+    if (!board) return;
+
     switch (md) {
         case MD_NORTH: {
             if (m_curr_pos_row <= 0)
@@ -20,13 +26,13 @@ void Player::move(MoveDirection md) {
             break;
         }
         case MD_EAST: {
-            if (m_curr_pos_col >= m_board.cols() - 1)
+            if (m_curr_pos_col >= board->cols() - 1)
                 return;
             m_curr_pos_col += 1;
             break;
         }
         case MD_SOUTH: {
-            if (m_curr_pos_row >= m_board.rows() - 1)
+            if (m_curr_pos_row >= board->rows() - 1)
                 return;
             m_curr_pos_row += 1;
             break;

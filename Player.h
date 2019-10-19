@@ -7,10 +7,13 @@
 
 #include "common.h"
 #include "Tile.h"
+#include "Board.h"
+#include <memory>
 
 class Board;
 
 class Player {
+public:
     enum MoveDirection {
         MD_UNKNOWN = 0,
         MD_NORTH,
@@ -20,9 +23,9 @@ class Player {
     };
 
 public:
-    Tile **knownBoard = 0; // TODO
-
     Player();
+
+    void set_board(std::weak_ptr<Board> board);
 
     inline int curr_pos_row() { return m_curr_pos_row; }
     inline int curr_pos_col() { return m_curr_pos_col; }
@@ -44,7 +47,7 @@ private:
     int get_degree_by_direction(MoveDirection md);
 
 private:
-    Board m_board;
+    std::weak_ptr<Board> m_board;
     int m_score = 0;
     int m_curr_degree = 90; // initial degree is 90 degree, means direction face to the right (i.e. east).
                             // 0 <-> north, 90 <-> east, 180 <-> south, 270 <-> west.
