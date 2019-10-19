@@ -45,7 +45,18 @@ void display_board(const Board::Map &map)
 
 Board::Map create_new_map(int rows, int cols)
 {
+    if (rows <= 0 || cols <= 0) {
+        std::cout << __FUNCTION__ << "::wrong rows or cols specified!" << std::endl;
+        return Board::Map();
+    }
+
     Board::Map map(rows, std::vector<Tile*>(cols, new Tile()));
+
+    if (!map[0][0]) {
+        std::cout << __FUNCTION__ << "::fatal error, empty pointer of the map, this should not appear!" << std::endl;
+        return;
+    }
+    map[0][0]->set_state(Tile::TS_ENTRANCE);
 
     return map;
 }

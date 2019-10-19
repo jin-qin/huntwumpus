@@ -25,6 +25,10 @@ public:
     inline int cols() {return m_cols;}
 
 private:
+    void generate_breezy_of_pit(int row, int col);
+    void generate_smelly_of_wumpus(int row, int col);
+
+private:
     int m_rows = 0;
     int m_cols = 0;
 
