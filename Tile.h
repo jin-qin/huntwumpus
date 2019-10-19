@@ -19,6 +19,7 @@ public:
     TS_DETERMINED           = 0x0080
   };
 
+  Tile();
   Tile(TileState ts);
   Tile(int ts);
 
@@ -36,8 +37,12 @@ public:
   bool is_breezy();
   bool is_smelly();
   bool has_wumpus();
-  bool has_gold();
+  bool maybe_wumpus();
+  bool mustbe_wumpus();
   bool has_pit();
+  bool maybe_pit();
+  bool mustbe_pit();
+  bool has_gold();
   bool player_been_here();
   bool determined();
 

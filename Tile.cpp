@@ -1,12 +1,17 @@
 #include "Tile.h"
 
+Tile::Tile()
+    : m_state(TS_UNKNOWN)
+{
+}
+
 Tile::Tile(TileState ts)
     : m_state(ts)
 {
 }
 
 Tile::Tile(int ts)
-    : m_state(static_cast<Tile::TileState>(ts))
+    : m_state(static_cast<TileState>(ts))
 {
 }
 
@@ -17,7 +22,7 @@ void Tile::set_state(TileState ts)
 
 void Tile::set_state(int ts)
 {
-    set_state(static_cast<Tile::TileState>(ts));
+    set_state(static_cast<TileState>(ts));
 }
 
 void Tile::add_state(TileState ts)
@@ -64,13 +69,29 @@ bool Tile::has_wumpus()
 {
     return 0 != (m_state & TS_WUMPUS);
 }
-bool Tile::has_gold()
+bool Tile::maybe_wumpus()
 {
-    return 0 != (m_state & TS_GOLD);
+    return has_wumpus() && !determined();
+}
+bool Tile::mustbe_wumpus()
+{
+    return has_wumpus() && determined();
 }
 bool Tile::has_pit()
 {
     return 0 != (m_state & TS_PIT);
+}
+bool Tile::maybe_pit()
+{
+    return has_pit() && !determined();
+}
+bool Tile::mustbe_pit()
+{
+    return has_pit() && determined();
+}
+bool Tile::has_gold()
+{
+    return 0 != (m_state & TS_GOLD);
 }
 bool Tile::player_been_here()
 {

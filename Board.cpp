@@ -1,9 +1,6 @@
-//
-//  Board.cpp
-//  
-//
-//  Created by Jonathan Redwine on 10/9/19.
-//
+/**
+ * @author Jonathan Redwine
+ */
 
 #include "Board.h"
 #include "util.h"
@@ -13,12 +10,20 @@ Board::Board()
 
 }
 
+Board::~Board()
+{
+    util::destroy_map(m_map);
+}
+
 void Board::display_board()
 {
     util::display_board(m_map, m_rows, m_cols);
 }
 
-void Board::generate_new_board(int rows, int cols)
+void Board::generate_new_map(int rows, int cols)
 {
-    // TODO
+    // make sure the previous map is destroyed.
+    util::destroy_map(m_map);
+
+    m_map = util::create_new_map(rows, cols);
 }

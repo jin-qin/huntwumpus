@@ -1,9 +1,6 @@
-//
-//  Player.cpp
-//  
-//
-//  Created by Jonathan Redwine on 10/9/19.
-//
+/**
+ * @author Jonathan Redwine
+ */
 
 #include "Player.h"
 #include <iostream>
