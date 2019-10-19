@@ -17,7 +17,7 @@ Board::~Board()
 
 void Board::display_board()
 {
-    util::display_board(m_map, m_rows, m_cols);
+    util::display_board(m_map);
 }
 
 void Board::generate_new_map(int rows, int cols)
