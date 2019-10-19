@@ -9,25 +9,20 @@
 #include "time.h"
 #include <iostream>
 
-Board::Board()
-{
-
+Board::Board() {
 }
 
-Board::~Board()
-{
+Board::~Board() {
     util::destroy_map(m_map);
     m_rows = 0;
     m_cols = 0;
 }
 
-void Board::display_board()
-{
+void Board::display_board() {
     util::display_board(m_map);
 }
 
-void Board::generate_new_map(int rows, int cols)
-{
+void Board::generate_new_map(int rows, int cols) {
     // destroy the old map.
     util::destroy_map(m_map);
 
@@ -68,8 +63,7 @@ void Board::generate_new_map(int rows, int cols)
     
 }
 
-void Board::generate_breezy_of_pit(int row, int col)
-{
+void Board::generate_breezy_of_pit(int row, int col) {
     if (row < 0 || row >= m_rows || 
         col < 0 || col >= m_cols ||
         (row == 0 && col == 0)) {
@@ -87,8 +81,7 @@ void Board::generate_breezy_of_pit(int row, int col)
         m_map[row + 1][col]->add_state(Tile::TS_BREEZY);
 }
 
-void Board::generate_smelly_of_wumpus(int row, int col)
-{
+void Board::generate_smelly_of_wumpus(int row, int col) {
     if (row < 0 || row >= m_rows || 
         col < 0 || col >= m_cols ||
         (row == 0 && col == 0)) {

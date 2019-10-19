@@ -5,8 +5,7 @@
 
 namespace util {
 
-void display_board(const Board::Map &map)
-{   
+void display_board(const Board::Map &map) {   
     for (size_t i = 0; i < map.size(); i++) {
         for (size_t j = 0; j < map[i].size(); j++) {
             int empty = 1;
@@ -43,8 +42,7 @@ void display_board(const Board::Map &map)
     }
 }
 
-Board::Map create_new_map(int rows, int cols)
-{
+Board::Map create_new_map(int rows, int cols) {
     if (rows <= 0 || cols <= 0) {
         std::cout << __FUNCTION__ << "::wrong rows or cols specified!" << std::endl;
         return Board::Map();
@@ -61,8 +59,7 @@ Board::Map create_new_map(int rows, int cols)
     return map;
 }
 
-void destroy_map(Board::Map &map)
-{
+void destroy_map(Board::Map &map) {
     for (size_t i = 0; i < map.size(); i++) {
         for (size_t j = 0; j < map[i].size(); j++) {
             safe_delete(map[i][j]);
