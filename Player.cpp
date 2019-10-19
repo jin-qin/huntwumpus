@@ -71,6 +71,19 @@ void Player::rotate_to(MoveDirection md) {
     m_curr_degree = get_degree_by_direction(md);
 }
 
+void Player::throw_arrow(MoveDirection md) {
+    if (m_arrow_throwed) return;
+
+    // try to kill wumpus
+    auto board = m_board.lock();
+    board->try_kill_wumpus(m_curr_pos_row, m_curr_pos_col, md);
+
+    // update knowledge base to mark wumpus is killed.
+    // TO DO
+
+    m_score -= 10;
+}
+
 int Player::find_tile_not_yet_visited(int possibleMoves[4]) {
     // if (possibleMoves[0] != -1) { // check if north tile has been visited
     //     if (!knownBoard[currPosX][currPosY-1].player_been_here()) {

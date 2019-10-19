@@ -14,15 +14,6 @@ class Board;
 
 class Player {
 public:
-    enum MoveDirection {
-        MD_UNKNOWN = 0,
-        MD_NORTH,
-        MD_EAST,
-        MD_SOUTH,
-        MD_WEST
-    };
-
-public:
     Player();
 
     void set_board(std::weak_ptr<Board> board);
@@ -33,13 +24,16 @@ public:
     // actions
     void move(MoveDirection md);
     int select_move();
-
     /**
      * @brief each rotation can only rotate 90 degrees.
      * each rotation will make score -= 1.
      * @param md, rotation from current direction to the specified direction md.
      */ 
     void rotate_to(MoveDirection md);
+    /**
+     * @brief can only throw one arrow in each game round, and score will minus 10 after this action.
+     */
+    void throw_arrow(MoveDirection md);
 
     int find_tile_not_yet_visited(int possibleMoves[4]);
 
@@ -54,6 +48,8 @@ private:
 
     int m_curr_pos_row = 0;
     int m_curr_pos_col = 0;
+
+    bool m_arrow_throwed = false;
 };
 
 #endif //PLAYER_H

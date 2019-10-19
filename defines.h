@@ -11,4 +11,12 @@ template<typename T> void safe_delete(T*& a) {
   a = 0;
 }
 
+enum MoveDirection {
+    MD_UNKNOWN = 0,
+    MD_NORTH,
+    MD_EAST,
+    MD_SOUTH,
+    MD_WEST
+};
+
 #endif
