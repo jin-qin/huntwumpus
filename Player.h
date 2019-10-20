@@ -31,9 +31,12 @@ public:
      */ 
     void rotate_to(MoveDirection md);
     /**
-     * @brief can only throw one arrow in each game round, and score will minus 10 after this action.
+     * @brief can only use one arrow in each game round, and score will minus 11 after this action.
      */
-    void throw_arrow(MoveDirection md);
+    void shoot(MoveDirection md);
+    void grab_gold();
+    void climb_out();
+    void back_to_entrance();
 
     int find_tile_not_yet_visited(int possibleMoves[4]);
 

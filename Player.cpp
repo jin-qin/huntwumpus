@@ -73,7 +73,7 @@ void Player::rotate_to(MoveDirection md) {
     m_curr_degree = get_degree_by_direction(md);
 }
 
-void Player::throw_arrow(MoveDirection md) {
+void Player::shoot(MoveDirection md) {
     if (m_arrow_throwed) return;
 
     // try to kill wumpus
@@ -83,7 +83,23 @@ void Player::throw_arrow(MoveDirection md) {
     // update knowledge base to mark wumpus is killed.
     // TO DO
 
-    m_score -= 10;
+    m_score -= 11; // -1 for action shoot, -10 for using up arrows.
+}
+
+void Player::grab_gold() {
+    // TO DO
+
+    m_score -= 1;
+}
+void Player::climb_out() {
+    // TO DO
+
+    m_score += 999; // +1000 for climbing out the cave with the gold, -1 for action climb.
+}
+
+void Player::back_to_entrance() {
+    // should calculate a best route.
+    // TO DO
 }
 
 int Player::find_tile_not_yet_visited(int possibleMoves[4]) {
