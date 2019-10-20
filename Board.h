@@ -36,10 +36,10 @@ private:
     void clear_smelly_and_wumpus();
 
 private:
+    Map m_map;
+    
     int m_rows = 0;
     int m_cols = 0;
-
-    Map m_map;
 
     int m_row_wumpus = -1;
     int m_col_wumpus = -1;
