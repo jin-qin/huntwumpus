@@ -36,8 +36,10 @@ void Board::generate_new_map(int rows, int cols) {
     // generate wumpus
     srand(time(NULL) / 3);
     auto ind_wumpus = -1;
-    while (ind_wumpus != ind_gold)
+    while (ind_wumpus != ind_gold) {
+        srand(time(NULL) - ind_wumpus);
         ind_wumpus = rand() % (rows * cols);
+    }
     m_row_wumpus = ind_wumpus / cols;
     m_col_wumpus = ind_wumpus % cols;
     m_map[m_row_wumpus][m_col_wumpus]->add_state(Tile::TS_WUMPUS);
