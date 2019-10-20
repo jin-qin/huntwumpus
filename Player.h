@@ -1,62 +1,55 @@
-//
-//  Player.h
-//  
-//
-//  Created by Jonathan Redwine on 10/9/19.
-//
+/**
+ * @author Jonathan Redwine
+ */
 
 #ifndef PLAYER_H
 #define PLAYER_H
 
 #include "common.h"
 #include "Tile.h"
+#include "Board.h"
+#include <memory>
+
+class Board;
 
 class Player {
 public:
-    int currPosX;
-    int currPosY;
-    Tile **knownBoard = 0; // TODO
+    Player();
 
-    // Tile knownBoard[5][5] =
-    // {{Tile(Tile::TS_ENTRANCE | Tile::TS_PLAYER_HERE | Tile::TS_DETERMINED), //0,0
-    //     Tile(0,2,2,0,2,0,0,0), //0,1
-    //     Tile(0,2,2,2,2,2,0,0), //0,2
-    //     Tile(0,2,2,2,2,2,0,0), //0,3
-    //     Tile(0,2,2,2,2,2,0,0)}, //0,4
-    //     {Tile(0,2,2,0,2,0,0,0), //1,0
-    //         Tile(0,2,2,2,2,2,0,0), //1,1
-    //         Tile(0,2,2,2,2,2,0,0), //1,2
-    //         Tile(0,2,2,2,2,2,0,0), //1,3
-    //         Tile(0,2,2,2,2,2,0,0)}, //1,4
-    //     {Tile(0,2,2,2,2,2,0,0), //2,0
-    //         Tile(0,2,2,2,2,2,0,0), //2,1
-    //         Tile(0,2,2,2,2,2,0,0), //2,2
-    //         Tile(0,2,2,2,2,2,0,0), //2,3
-    //         Tile(0,2,2,2,2,2,0,0)}, //2,4
-    //     {Tile(0,2,2,2,2,2,0,0), //3,0
-    //         Tile(0,2,2,2,2,2,0,0), //3,1
-    //         Tile(0,2,2,2,2,2,0,0), //3,2
-    //         Tile(0,2,2,2,2,2,0,0), //3,3
-    //         Tile(0,2,2,2,2,2,0,0)}, //3,4
-    //     {Tile(0,2,2,2,2,2,0,0), //4,0
-    //         Tile(0,2,2,2,2,2,0,0), //4,1
-    //         Tile(0,2,2,2,2,2,0,0), //4,2
-    //         Tile(0,2,2,2,2,2,0,0), //4,3
-    //         Tile(0,2,2,2,2,2,0,0)} //4,4
-    // };
+    void set_board(std::weak_ptr<Board> board);
 
-    Player() {
-        currPosX = 0;
-        currPosY = 0;
-    }
-    
-    void move(int thisMove);
+    inline int curr_pos_row() { return m_curr_pos_row; }
+    inline int curr_pos_col() { return m_curr_pos_col; }
+
+    // actions
+    void move(MoveDirection md);
     int select_move();
+    /**
+     * @brief each rotation can only rotate 90 degrees.
+     * each rotation will make score -= 1.
+     * @param md, rotation from current direction to the specified direction md.
+     */ 
+    void rotate_to(MoveDirection md);
+    /**
+     * @brief can only throw one arrow in each game round, and score will minus 10 after this action.
+     */
+    void throw_arrow(MoveDirection md);
+
     int find_tile_not_yet_visited(int possibleMoves[4]);
 
 private:
-    int m_rows = 0;
-    int m_cols = 0;
+    int get_degree_by_direction(MoveDirection md);
+
+private:
+    std::weak_ptr<Board> m_board;
+    int m_score = 0;
+    int m_curr_degree = 90; // initial degree is 90 degree, means direction face to the right (i.e. east).
+                            // 0 <-> north, 90 <-> east, 180 <-> south, 270 <-> west.
+
+    int m_curr_pos_row = 0;
+    int m_curr_pos_col = 0;
+
+    bool m_arrow_throwed = false;
 };
 
 #endif //PLAYER_H
