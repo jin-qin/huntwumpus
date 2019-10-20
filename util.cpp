@@ -52,7 +52,7 @@ Board::Map create_new_map(int rows, int cols) {
 
     if (!map[0][0]) {
         std::cout << __FUNCTION__ << "::fatal error, empty pointer of the map, this should not appear!" << std::endl;
-        return;
+        return Board::Map();
     }
     map[0][0]->set_state(Tile::TS_ENTRANCE);
 

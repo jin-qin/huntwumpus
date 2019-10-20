@@ -62,6 +62,8 @@ int Player::select_move() {
     
     // move(thisMove);
     // return thisMove;
+
+	return 0;
 }
 
 void Player::rotate_to(MoveDirection md) {
@@ -110,4 +112,25 @@ int Player::find_tile_not_yet_visited(int possibleMoves[4]) {
     //         return possibleMoves[i];
     //     }
     // }
+
+	return 0;
+}
+
+int Player::get_degree_by_direction(MoveDirection md) {
+	switch (md) {
+	case MD_UNKNOWN:
+		std::cout << __FUNCTION__ << ":: wrong direction, pls check your codes!" << std::endl;
+		return 0;
+	case MD_NORTH:
+		return 0;
+	case MD_EAST:
+		return 90;
+	case MD_SOUTH:
+		return 180;
+	case MD_WEST:
+		return 270;
+	default:
+		std::cout << __FUNCTION__ << ":: wrong direction, pls check your codes!" << std::endl;
+		return 0;
+	}
 }

@@ -8,9 +8,11 @@ typedef Tile** Map;
 class KnowledgeBase{
 public:
     KnowledgeBase(int row_len, int col_len);
-    void add_knowledge(int pos_x, int pos_y, int status);
+	~KnowledgeBase();
+
+    void add_knowledge(int pos_x, int pos_y, Tile status);
     void create_knowledge(int x, int y);
-    void analyze();
+    void analyze(int cur_x, int cur_y);
     void update_knowledge();
 
 
