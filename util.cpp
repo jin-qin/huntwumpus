@@ -48,7 +48,9 @@ Board::Map create_new_map(int rows, int cols) {
         return Board::Map();
     }
 
-    Board::Map map(rows, std::vector<std::shared_ptr<Tile>>(cols, std::make_shared<Tile>()));
+    Board::Map map(rows, std::vector<std::shared_ptr<Tile>>());
+    for (int i = 0; i < cols; i++)
+        map[i].push_back(std::make_shared<Tile>());
 
     if (!map[0][0]) {
         std::cout << __FUNCTION__ << "::fatal error, empty pointer of the map, this should not appear!" << std::endl;
