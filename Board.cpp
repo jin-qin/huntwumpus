@@ -39,7 +39,7 @@ void Board::generate_new_map(int rows, int cols) {
     auto ind_wumpus = rand() % (rows * cols);
     m_row_wumpus = ind_wumpus / cols;
     m_col_wumpus = ind_wumpus % cols;
-    m_map[im_row_wumpus][m_col_wumpus]->add_state(Tile::TS_WUMPUS);
+    m_map[m_row_wumpus][m_col_wumpus]->add_state(Tile::TS_WUMPUS);
     generate_smelly_of_wumpus(m_row_wumpus, m_col_wumpus);
     
     // generate pits.
@@ -114,17 +114,17 @@ bool Board::try_kill_wumpus(int row, int col, MoveDirection md) {
     bool wumpus_killed = false;
     if (row == m_row_wumpus &&
         (md == MD_WEST || md == MD_EAST)) {
-        if (m_col_wumpus - col > 0) && (md == MD_EAST)
+        if ((m_col_wumpus - col > 0) && (md == MD_EAST))
             wumpus_killed = true;
-        if (m_col_wumpus - col < 0) && (md == MD_WEST)
+        if ((m_col_wumpus - col < 0) && (md == MD_WEST))
             wumpus_killed = true;
     }
 
     if (col == m_col_wumpus &&
         (md == MD_NORTH || md == MD_SOUTH)) {
-        if (m_row_wumpus - row > 0) && (md == MD_NORTH)
+        if ((m_row_wumpus - row > 0) && (md == MD_NORTH))
             wumpus_killed = true;
-        if (m_row_wumpus - row < 0) && (md == MD_SOUTH)
+        if ((m_row_wumpus - row < 0) && (md == MD_SOUTH))
             wumpus_killed = true;
     }
 
@@ -136,14 +136,14 @@ bool Board::try_kill_wumpus(int row, int col, MoveDirection md) {
 
 void Board::clear_smelly_and_wumpus() {
     if (m_col_wumpus > 0)
-        m_map[row][col - 1]->remove_state(Tile::TS_SMELLY);
+        m_map[m_row_wumpus][m_col_wumpus - 1]->remove_state(Tile::TS_SMELLY);
     if (m_row_wumpus > 0)
-        m_map[row - 1][col]->remove_state(Tile::TS_SMELLY);
+        m_map[m_row_wumpus - 1][m_col_wumpus]->remove_state(Tile::TS_SMELLY);
     if (m_col_wumpus < m_cols - 1)
-        m_map[row][col + 1]->remove_state(Tile::TS_SMELLY);
+        m_map[m_row_wumpus][m_col_wumpus + 1]->remove_state(Tile::TS_SMELLY);
     if (m_row_wumpus < m_rows - 1)
-        m_map[row + 1][col]->remove_state(Tile::TS_SMELLY);
+        m_map[m_row_wumpus + 1][m_col_wumpus]->remove_state(Tile::TS_SMELLY);
 
     m_row_wumpus = -1;
-    m_col_wumpus = -1
+    m_col_wumpus = -1;
 }
