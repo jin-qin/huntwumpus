@@ -48,7 +48,7 @@ Board::Map create_new_map(int rows, int cols) {
         return Board::Map();
     }
 
-    Board::Map map(rows, std::vector<Tile*>(cols, new Tile()));
+    Board::Map map(rows, std::vector<std::shared_ptr<Tile>>(cols, std::make_shared<Tile>()));
 
     if (!map[0][0]) {
         std::cout << __FUNCTION__ << "::fatal error, empty pointer of the map, this should not appear!" << std::endl;
@@ -57,16 +57,6 @@ Board::Map create_new_map(int rows, int cols) {
     map[0][0]->set_state(Tile::TS_ENTRANCE);
 
     return map;
-}
-
-void destroy_map(Board::Map &map) {
-    for (size_t i = 0; i < map.size(); i++) {
-        for (size_t j = 0; j < map[i].size(); j++) {
-            safe_delete(map[i][j]);
-        }
-    }
-    
-    map.clear();
 }
 
 }

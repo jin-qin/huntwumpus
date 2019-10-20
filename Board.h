@@ -7,11 +7,12 @@
 
 #include "common.h"
 #include <vector>
+#include <memory>
 
 class Tile;
 class Board {
 public:
-    typedef std::vector< std::vector<Tile*> > Map;
+    typedef std::vector< std::vector< std::shared_ptr<Tile> > > Map;
 
 public:
     Board();

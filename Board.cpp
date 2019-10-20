@@ -13,7 +13,6 @@ Board::Board() {
 }
 
 Board::~Board() {
-    util::destroy_map(m_map);
 }
 
 void Board::display_board() {
@@ -101,7 +100,6 @@ void Board::generate_smelly_of_wumpus(int row, int col) {
 }
 
 void Board::cleanup() {
-    util::destroy_map(m_map);
     m_rows = 0;
     m_cols = 0;
     m_row_wumpus = -1;
