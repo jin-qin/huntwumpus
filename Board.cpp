@@ -37,8 +37,8 @@ void Board::generate_new_map(int rows, int cols) {
     srand(time(NULL) / 3);
     auto ind_wumpus = -1;
     while (ind_wumpus != ind_gold) {
-        srand(time(NULL) - ind_wumpus);
         ind_wumpus = rand() % (rows * cols);
+        srand(time(NULL) - ind_wumpus);
     }
     m_row_wumpus = ind_wumpus / cols;
     m_col_wumpus = ind_wumpus % cols;
