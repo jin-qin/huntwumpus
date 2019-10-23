@@ -17,10 +17,15 @@ public:
 
 
 private:
+<<<<<<< Updated upstream
     int m_row_len = 0, m_col_len = 0;
 
 	Board::Map m_map; //Store information of board
 
+=======
+    int m_row_len = 0, m_col_len = 0, m_counter = 0;
+    Map m_map = 0;//Store information of board
+>>>>>>> Stashed changes
     //m_pos_x and m_pos_y are used to store the position player has been
     int * m_pos_x;
     int * m_pos_y;
