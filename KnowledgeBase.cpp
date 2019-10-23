@@ -8,7 +8,6 @@ using namespace std;
 KnowledgeBase::KnowledgeBase(int row_len, int col_len)
              :m_row_len(row_len)
              ,m_col_len(col_len)
-             ,m_counter(0)
 { 
     create_knowledge(row_len,col_len);   
 }
@@ -114,7 +113,7 @@ void KnowledgeBase::analyze(int cur_row, int cur_col){//use the current informat
                     }
                 }
                 else{
-                    if(!(m_map[row][col-1]->is_safe()^m_map[row][col+1]->is_safe()^m_map[row+1][col]->is_safe()){
+                    if(!(m_map[row][col-1]->is_safe()^m_map[row][col+1]->is_safe()^m_map[row+1][col]->is_safe())){
                         if(!m_map[row][col-1]->is_safe()){
                             m_map[row][col-1]->add_state(Tile::TS_PIT);
                             m_map[row][col-1]->add_state(Tile::TS_DETERMINED);
