@@ -78,3 +78,6 @@ bool Tile::player_been_here() {
 bool Tile::determined() {
     return 0 != (m_state & TS_DETERMINED);
 }
+bool Tile::is_safe(){//shuo added.
+    return 0 != (m_state & TS_SAFE);
+}

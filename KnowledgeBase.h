@@ -19,6 +19,7 @@ public:
 private:
     int m_row_len = 0, m_col_len = 0, m_counter = 0;
     Board::Map m_map; //Store information of board
+
     //m_pos_x and m_pos_y are used to store the position player has been
     int * m_pos_x;
     int * m_pos_y;

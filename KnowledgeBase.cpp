@@ -98,56 +98,137 @@ void KnowledgeBase::add_knowledge(int pos_x, int pos_y, Tile status){ // Receive
             if(pos_y < m_row_len -1){
                 m_map[pos_y][pos_y+1]->add_state(Tile::TS_WUMPUS);
             }
-            // if(0 == pos_x){
-            //    if(0 <= pos_y - 1 && pos_y + 1 < m_col_len){
-            //        m_map[pos_x+1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y-1]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y+1]->add_state(Tile::TS_WUMPUS);
-            //    }else if(0 == pos_y){
-            //        m_map[pos_x+1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y+1]->add_state(Tile::TS_WUMPUS);
-            //    }else if(m_col_len == pos_y){
-            //        m_map[pos_x+1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y-1]->add_state(Tile::TS_WUMPUS);
-            //    }
-            // }else if(m_col_len == pos_x){
-            //     if(0 <= pos_y - 1 && pos_y + 1 < m_col_len){
-            //        m_map[pos_x-1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y-1]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y+1]->add_state(Tile::TS_WUMPUS);
-            //    }else if(0 == pos_y){
-            //        m_map[pos_x-1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y+1]->add_state(Tile::TS_WUMPUS);
-            //    }else if(m_col_len == pos_y){
-            //        m_map[pos_x-1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y-1]->add_state(Tile::TS_WUMPUS);
-            //    }
-            // }else{
-            //     if(0 <= pos_y - 1 && pos_y + 1 < m_col_len){
-            //        m_map[pos_x+1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x-1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y-1]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y+1]->add_state(Tile::TS_WUMPUS);
-            //    }else if(0 == pos_y){
-            //        m_map[pos_x+1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x-1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y+1]->add_state(Tile::TS_WUMPUS);
-            //    }else if(m_col_len == pos_y){
-            //        m_map[pos_x+1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x-1][pos_y]->add_state(Tile::TS_WUMPUS);
-            //        m_map[pos_x][pos_y-1]->add_state(Tile::TS_WUMPUS);
-            //    }
-            // }
         }
     }
+    //To continue
     m_pos_x[m_counter] = pos_x;
     m_pos_y[m_counter] = pos_y;
     m_counter++;
+    analyze(pos_x,pos_y);
 };
 
 void KnowledgeBase::analyze(int cur_x, int cur_y){//use the current information to infer the known space
-    //rule: if 3 of 4 points around the position which is smelly or breezy is determined, the remaining point is the pit/wumpus.
+    //rule: if 3 of 4 points around the position which is smelly or breezy is safe, the remaining point is the pit/wumpus.
     //search rule: searching from current position to the first position by using array m_pos_x and m_pos_y.
+    int pos_x, pos_y,counter;
+    pos_x = cur_x;
+    pos_y = cur_y;
+    counter = m_counter;
+    while(counter != 0){//Q:set_state or add_state?
+        if(!m_map[pos_x][pos_y]->is_breezy()&&!m_map[pos_x][pos_y]->is_smelly()){
+            m_map[pos_x][pos_y]->set_state(Tile::TS_SAFE);
+            if(pos_x > 0){
+                m_map[pos_x-1][pos_y]->set_state(Tile::TS_SAFE);
+            }
+            if(pos_x < m_col_len -1){
+                m_map[pos_x+1][pos_y]->set_state(Tile::TS_SAFE);
+            }
+            if(pos_y > 0){
+                m_map[pos_x][pos_y-1]->set_state(Tile::TS_SAFE);
+            }
+            if(pos_y < m_row_len -1){
+                m_map[pos_y][pos_y+1]->set_state(Tile::TS_SAFE);
+            }
+        }
+
+        if(m_map[pos_x][pos_y]->is_breezy()){
+            if(0 == pos_x){
+                if(0 == pos_y){
+                    if(m_map[pos_x+1][pos_y]->is_safe()){
+                        m_map[pos_x][pos_y+1]->add_state(Tile::TS_PIT);
+                        m_map[pos_x][pos_y+1]->add_state(Tile::TS_DETERMINED);
+                    }
+                    if(m_map[pos_x][pos_y+1]->is_safe()){
+                        m_map[pos_x+1][pos_y]->add_state(Tile::TS_PIT);
+                        m_map[pos_x+1][pos_y]->add_state(Tile::TS_DETERMINED);
+                    }
+                }
+                else if(m_col_len-1 == pos_y){
+                    if(m_map[pos_x][pos_y-1]->is_safe()){
+                        m_map[pos_x+1][pos_y]->add_state(Tile::TS_PIT);
+                        m_map[pos_x+1][pos_y]->add_state(Tile::TS_DETERMINED);
+                    }
+                    if(m_map[pos_x+1][pos_y]->is_safe()){
+                        m_map[pos_x][pos_y-1]->add_state(Tile::TS_PIT);
+                        m_map[pos_x][pos_y-1]->add_state(Tile::TS_PIT);
+                    }
+                }
+                else{
+                    if(!(m_map[pos_x][pos_y-1]->is_safe()^m_map[pos_x][pos_y+1]->is_safe()^m_map[pos_x+1][pos_y]->is_safe()){
+                        if(!m_map[pos_x][pos_y-1]->is_safe()){
+                            m_map[pos_x][pos_y-1]->add_state(Tile::TS_PIT);
+                            m_map[pos_x][pos_y-1]->add_state(Tile::TS_DETERMINED);
+                        }
+                        if(!m_map[pos_x][pos_y+1]->is_safe()){
+                            m_map[pos_x][pos_y+1]->add_state(Tile::TS_PIT);
+                            m_map[pos_x][pos_y+1]->add_state(Tile::TS_DETERMINED);
+                        }
+                        if(!m_map[pos_x+1][pos_y]->is_safe()){
+                            m_map[pos_x+1][pos_y]->add_state(Tile::TS_PIT);
+                            m_map[pos_x+1][pos_y]->add_state(Tile::TS_DETERMINED);
+                        }
+                    }
+                }
+            }else if(m_row_len - 1 == pos_x){
+                if(0 == pos_y){
+                    if(m_map[pos_x-1][pos_y]->is_safe()){
+                        m_map[pos_x][pos_y+1]->add_state(Tile::TS_PIT);
+                        m_map[pos_x][pos_y+1]->add_state(Tile::TS_DETERMINED);
+                    }
+                    if(m_map[pos_x][pos_y+1]->is_safe()){
+                        m_map[pos_x-1][pos_y]->add_state(Tile::TS_PIT);
+                        m_map[pos_x-1][pos_y]->add_state(Tile::TS_DETERMINED);
+                    }
+                }
+                else if(m_col_len-1 == pos_y){
+                    if(m_map[pos_x][pos_y-1]->is_safe()){
+                        m_map[pos_x-1][pos_y]->add_state(Tile::TS_PIT);
+                        m_map[pos_x-1][pos_y]->add_state(Tile::TS_DETERMINED);
+                    }
+                    if(m_map[pos_x-1][pos_y]->is_safe()){
+                        m_map[pos_x][pos_y-1]->add_state(Tile::TS_PIT);
+                        m_map[pos_x][pos_y-1]->add_state(Tile::TS_PIT);
+                    }
+                }
+                else{
+                    bool p,q;
+                    p = false;
+                    q = false;
+                    p = !(m_map[pos_x][pos_y-1]->is_safe()^m_map[pos_x][pos_y+1]->is_safe()^m_map[pos_x-1][pos_y]->is_safe());
+                    q = !(m_map[pos_x][pos_y-1]->is_safe()||m_map[pos_x][pos_y+1]->is_safe()||m_map[pos_x-1][pos_y]->is_safe());
+                    if(p && q){//need modification
+                        if(!m_map[pos_x][pos_y-1]->is_safe()){
+                            m_map[pos_x][pos_y-1]->add_state(Tile::TS_PIT);
+                            m_map[pos_x][pos_y-1]->add_state(Tile::TS_DETERMINED);
+                        }
+                        if(!m_map[pos_x][pos_y+1]->is_safe()){
+                            m_map[pos_x][pos_y+1]->add_state(Tile::TS_PIT);
+                            m_map[pos_x][pos_y+1]->add_state(Tile::TS_DETERMINED);
+                        }
+                        if(!m_map[pos_x-1][pos_y]->is_safe()){
+                            m_map[pos_x-1][pos_y]->add_state(Tile::TS_PIT);
+                            m_map[pos_x-1][pos_y]->add_state(Tile::TS_DETERMINED);
+                        }
+                    }
+                }
+            }else{
+                if(0 == pos_y){
+
+                }else if(m_col_len - 1 == pos_x){
+
+                }else{
+
+                }
+            }
+        }
+
+        if(m_map[pos_x][pos_y]->is_smelly()){
+
+        }
+    pos_x = m_pos_x[counter-1];
+    pos_y = m_pos_y[counter-1];
+    --counter;
+    }
 };
 
 void KnowledgeBase::update_knowledge(){

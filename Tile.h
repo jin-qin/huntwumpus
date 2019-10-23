@@ -16,7 +16,8 @@ public:
     TS_GOLD                 = 0x0010,     // May be gold if the state is not DETERMINED.
     TS_PIT                  = 0x0020,     // May be a pit if the state is not DETERMINED.
     TS_PLAYER_HERE          = 0x0040,
-    TS_DETERMINED           = 0x0080
+    TS_DETERMINED           = 0x0080,
+    TS_SAFE                 = 0x0100      //Shuo added this var to represent the safe status
   };
 
   Tile();
@@ -45,6 +46,7 @@ public:
   bool has_gold();
   bool player_been_here();
   bool determined();
+  bool is_safe();//shuo added
 
 private:
   TileState m_state = TS_UNKNOWN;
