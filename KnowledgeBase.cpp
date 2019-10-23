@@ -7,8 +7,8 @@ using namespace std;
 
 KnowledgeBase::KnowledgeBase(int row_len, int col_len)
              :m_row_len(row_len)
-             :m_col_len(col_len)
-             :m_counter(0)
+             ,m_col_len(col_len)
+             ,m_counter(0)
 { 
     create_knowledge(row_len,col_len);   
 }
