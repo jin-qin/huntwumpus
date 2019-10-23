@@ -56,12 +56,12 @@ void Player::move(MoveDirection md) {
 
 int Player::select_move() {
     // if there are no adjacent dangers
-    // if (!knownBoard[currPosX][currPosY].is_breezy() && !knownBoard[currPosX][currPosY].is_smelly()) {
-    //     thisMove = find_tile_not_yet_visited(possibleMoves);
-    // }
+    if ((m_kb.m_map[m_curr_pos_row][m_curr_pos_col].isSmelly() == false) && (m_kb.m_map[m_curr_pos_row][m_curr_pos_col].isBreezy() == false)) {
+        thisMove = find_tile_not_yet_visited();
+    }
     
-    // move(thisMove);
-    // return thisMove;
+    move(thisMove);
+    return thisMove;
 
 	return 0;
 }
@@ -102,34 +102,100 @@ void Player::back_to_entrance() {
     // TO DO
 }
 
-int Player::find_tile_not_yet_visited(int possibleMoves[4]) {
-    // if (possibleMoves[0] != -1) { // check if north tile has been visited
-    //     if (!knownBoard[currPosX][currPosY-1].player_been_here()) {
-    //         return possibleMoves[0];
-    //     }
-    // }
-    // if (possibleMoves[1] != -1) { // check if east tile has been visited
-    //     if (!knownBoard[currPosX+1][currPosY].player_been_here()) {
-    //         return possibleMoves[1];
-    //     }
-    // }
-    // if (possibleMoves[2] != -1) { // check if south tile has been visited
-    //     if (!knownBoard[currPosX][currPosY+1].player_been_here()) {
-    //         return possibleMoves[2];
-    //     }
-    // }
-    // if (possibleMoves[3] != -1) { // check is west tile has been visited
-    //     if (!knownBoard[currPosX-1][currPosY].player_been_here()) {
-    //         return possibleMoves[3];
-    //     }
-    // }
-    // for (int i = 0; i < 4; i++) {
-    //     if (possibleMoves[i] != -1) {
-    //         return possibleMoves[i];
-    //     }
-    // }
 
-	return 0;
+
+
+int Player::find_tile_not_yet_visited() {
+    if (m_curr_degree == 90) { // if facing east
+        if (m_curr_col != (m_kb.m_map[m_curr_row]).size() - 1) { // if we're not at east edge of board
+            if (m_kb.m_map[m_curr_row][m_curr_col+1].playerBeenHere() == false) { // and east tile not yet visited
+                m_curr_degree = 90;
+                return m_curr_degree;
+            }
+        } else if (m_curr_row != (m_kb.m_map).size() - 1) { // if we're not at south edge of board
+            if (m_kb.m_map[m_curr_row+1][m_curr_col].playerBeenHere() == false) { // and south tile is not visited
+                m_curr_degree = 180;
+                return m_curr_degree;
+            }
+        } else if (m_curr_row != 0) { // if we're not at north edge of board
+            if (m_kb.m_map[m_curr_row-1][m_curr_col].playerBeenHere() == false) { // and north tile not yet visited
+                m_curr_degree = 0;
+                return m_curr_degree; // move north if north tile not yet visited
+            }
+        } else if (m_curr_col != 0) { // if we're not at west edge of board
+            if (m_kb.m_map[m_curr_row][m_curr_col-1].playerBeenHere() == false) { // and west tile not yet visited
+                m_curr_degree = 270;
+                return m_curr_degree;
+            }
+        }
+    } else if (m_curr_degree == 180) { // if facing south
+        if (m_curr_row != (m_kb.m_map).size() - 1) { // if we're not at south edge of board
+            if (m_kb.m_map[m_curr_row+1][m_curr_col].playerBeenHere() == false) { // and south tile is not visited
+                m_curr_degree = 180;
+                return m_curr_degree;
+            }
+        } else if (m_curr_col != (m_kb.m_map[m_curr_row]).size() - 1) { // if we're not at east edge of board
+            if (m_kb.m_map[m_curr_row][m_curr_col+1].playerBeenHere() == false) { // and east tile not yet visited
+                m_curr_degree = 90;
+                return m_curr_degree;
+            }
+        } else if (m_curr_col != 0) { // if we're not at west edge of board
+            if (m_kb.m_map[m_curr_row][m_curr_col-1].playerBeenHere() == false) { // and west tile not yet visited
+                m_curr_degree = 270;
+                return m_curr_degree;
+            }
+        } else if (m_curr_row != 0) { // if we're not at north edge of board
+            if (m_kb.m_map[m_curr_row-1][m_curr_col].playerBeenHere() == false) { // and north tile not yet visited
+                m_curr_degree = 0;
+                return m_curr_degree; // move north if north tile not yet visited
+            }
+        }
+    } else if (m_curr_degree == 270) { // if facing west
+        if (m_curr_col != 0) { // if we're not at west edge of board
+            if (m_kb.m_map[m_curr_row][m_curr_col-1].playerBeenHere() == false) { // and west tile not yet visited
+                m_curr_degree = 270;
+                return m_curr_degree;
+            }
+        } else if (m_curr_row != (m_kb.m_map).size() - 1) { // if we're not at south edge of board
+            if (m_kb.m_map[m_curr_row+1][m_curr_col].playerBeenHere() == false) { // and south tile is not visited
+                m_curr_degree = 180;
+                return m_curr_degree;
+            }
+        } else if (m_curr_row != 0) { // if we're not at north edge of board
+            if (m_kb.m_map[m_curr_row-1][m_curr_col].playerBeenHere() == false) { // and north tile not yet visited
+                m_curr_degree = 0;
+                return m_curr_degree; // move north if north tile not yet visited
+            }
+        } else if (m_curr_col != (m_kb.m_map[m_curr_row]).size() - 1) { // if we're not at east edge of board
+            if (m_kb.m_map[m_curr_row][m_curr_col+1].playerBeenHere() == false) { // and east tile not yet visited
+                m_curr_degree = 90;
+                return m_curr_degree;
+            }
+        }
+    } else if (m_curr_degree == 0) { // if facing north
+        if (m_curr_row != 0) { // if we're not at north edge of board
+            if (m_kb.m_map[m_curr_row-1][m_curr_col].playerBeenHere() == false) { // and north tile not yet visited
+                m_curr_degree = 0;
+                return m_curr_degree; // move north if north tile not yet visited
+            }
+        } else if (m_curr_col != (m_kb.m_map[m_curr_row]).size() - 1) { // if we're not at east edge of board
+            if (m_kb.m_map[m_curr_row][m_curr_col+1].playerBeenHere() == false) { // and east tile not yet visited
+                m_curr_degree = 90;
+                return m_curr_degree;
+            }
+        } else if (m_curr_col != 0) { // if we're not at west edge of board
+            if (m_kb.m_map[m_curr_row][m_curr_col-1].playerBeenHere() == false) { // and west tile not yet visited
+                m_curr_degree = 270;
+                return m_curr_degree;
+            }
+        } else if (m_curr_row != (m_kb.m_map).size() - 1) { // if we're not at south edge of board
+            if (m_kb.m_map[m_curr_row+1][m_curr_col].playerBeenHere() == false) { // and south tile is not visited
+                m_curr_degree = 180;
+                return m_curr_degree;
+            }
+        }
+    }
+	return -1; // return -1 if no adjacent tile is unvisited
 }
 
 int Player::get_degree_by_direction(MoveDirection md) {
