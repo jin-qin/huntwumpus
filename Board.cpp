@@ -28,7 +28,11 @@ void Board::generate_new_map(int rows, int cols) {
 
     // generate gold
     srand(time(NULL) / 2);
-    auto ind_gold = rand() % (rows * cols);
+    auto ind_gold = -1;
+    while (ind_gold != 0) {
+        ind_gold = rand() % (rows * cols);
+        srand(time(NULL) - ind_gold);
+    }
     m_row_gold = ind_gold / cols;
     m_col_gold = ind_gold % cols;
     m_map[m_row_gold][m_col_gold]->add_state(Tile::TS_GOLD);
@@ -36,7 +40,7 @@ void Board::generate_new_map(int rows, int cols) {
     // generate wumpus
     srand(time(NULL) / 3);
     auto ind_wumpus = -1;
-    while (ind_wumpus != ind_gold) {
+    while (ind_wumpus != ind_gold && ind_wumpus != 0) {
         ind_wumpus = rand() % (rows * cols);
         srand(time(NULL) - ind_wumpus);
     }
