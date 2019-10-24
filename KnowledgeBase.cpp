@@ -2,6 +2,7 @@
 #include "Tile.h"
 #include "common.h"
 #include "util.h"
+#include <utility>
 
 using namespace std;
 
@@ -33,38 +34,37 @@ void KnowledgeBase::add_knowledge(int row, int col, Tile status){ // Receive the
     if(status.is_entrance()){
         m_map[row][col]->add_state(Tile::TS_ENTRANCE);
     }
-    if(status.is_breezy()){
-        m_map[row][col]->add_state(Tile::TS_BREEZY);
-        if(row > 0){
-            m_map[row][col]->add_state(Tile::TS_PIT);
-        }
-        if(row < m_row_len -1){
-            m_map[row+1][col]->add_state(Tile::TS_PIT);
-        }
-        if(col > 0){
-            m_map[row][col-1]->add_state(Tile::TS_PIT);
-        }
-        if(col < m_col_len -1){
-            m_map[row][col+1]->add_state(Tile::TS_PIT);
-        }
+
+    using namespace std;
+    vector< pair<Tile::TileState, Tile::TileState> > target_states;
+
+    if (status.is_breezy()) target_states.push_back(make_pair(Tile::TS_BREEZY, Tile::TS_PIT));
+    if (status.is_smelly()) target_states.push_back(make_pair(Tile::TS_SMELLY, Tile::TS_WUMPUS));
+    
+    for (int i = 0; i < target_states.size(); i++) {
+        m_map[row][col]->add_state(target_states[i].first);
+        if(row > 0)
+            m_map[row][col]->add_state(target_states[i].second);
+        if(row < m_row_len -1)
+            m_map[row+1][col]->add_state(target_states[i].second);
+        if(col > 0)
+            m_map[row][col-1]->add_state(target_states[i].second);
+        if(col < m_col_len -1)
+            m_map[row][col+1]->add_state(target_states[i].second);
     }
-    if(status.is_smelly()){
-        m_map[row][col]->add_state(Tile::TS_SMELLY);
-            if(row > 0){
-                m_map[row-1][col]->add_state(Tile::TS_WUMPUS);
-            }
-            if(row < m_row_len -1){
-                m_map[row+1][col]->add_state(Tile::TS_WUMPUS);
-            }
-            if(col > 0){
-                m_map[row][col-1]->add_state(Tile::TS_WUMPUS);
-            }
-            if(col < m_col_len -1){
-                m_map[row][col+1]->add_state(Tile::TS_WUMPUS);
-            }
-    }
+
+    add_knowledge_into_history(row, col);
     //To continue
 };
+
+void KnowledgeBase::add_knowledge_into_history(int row, int col) {
+    for (int i = 0; i < m_history_pos.size(); i++) {
+        if (m_history_pos[i].m_row == row && m_history_pos[i].m_col == col)
+            return;
+    }
+
+    m_history_pos.push_back(Position(row, col));
+}
 
 void KnowledgeBase::analyze(int cur_row, int cur_col){//use the current information to infer the known space
     //rule: if 3 of 4 points around the position which is smelly or breezy is safe, the remaining point is the pit/wumpus.
