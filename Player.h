@@ -8,6 +8,7 @@
 #include "common.h"
 #include "Tile.h"
 #include "Board.h"
+#include "KnowledgeBase.h"
 #include <memory>
 
 class Board;
@@ -38,13 +39,17 @@ public:
     void climb_out();
     void back_to_entrance();
 
-    int find_tile_not_yet_visited(int possibleMoves[4]);
+    int find_tile_not_yet_visited();
+    int fild_safe_tile_when_breezy();
+    int find_safe_tile_when_smelly();
+    int find_safe_tile_when_breezy_and_smelly();
 
 private:
     int get_degree_by_direction(MoveDirection md);
 
 private:
     std::weak_ptr<Board> m_board;
+    KnowledgeBase m_kb;
     int m_score = 0;
     int m_curr_degree = 90; // initial degree is 90 degree, means direction face to the right (i.e. east).
                             // 0 <-> north, 90 <-> east, 180 <-> south, 270 <-> west.

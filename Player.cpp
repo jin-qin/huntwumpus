@@ -55,15 +55,20 @@ void Player::move(MoveDirection md) {
 }
 
 int Player::select_move() {
+    int thisMove;
     // if there are no adjacent dangers
     if ((m_kb.m_map[m_curr_pos_row][m_curr_pos_col].isSmelly() == false) && (m_kb.m_map[m_curr_pos_row][m_curr_pos_col].isBreezy() == false)) {
         thisMove = find_tile_not_yet_visited();
+    } else if (m_kb.m_map[m_curr_pos_row][m_curr_pos_col].isBreezy()) { // if current tile is breezy
+        thisMove = find_safe_tile_when_breezy();
+    } else if (m_kb.m_map[m_curr_pos_row][m_curr_pos_col].isSmelly()) { // if current tile is smell
+        thisNove = find_safe_tile_when_smelly();
+    } else { // if current tile is both breezy and smelly
+        thisMove = find_safe_tile_when_breezy_and_smelly();
     }
     
     move(thisMove);
     return thisMove;
-
-	return 0;
 }
 
 void Player::rotate_to(MoveDirection md) {
@@ -197,6 +202,46 @@ int Player::find_tile_not_yet_visited() {
     }
 	return -1; // return -1 if no adjacent tile is unvisited
 }
+
+int Player::find_safe_tile_when_breezy() {
+    if (m_curr_degree == 90) { // if facing east
+
+    } else if (m_curr_degree == 180) { // if facing south
+
+    } else if (m_curr_degree == 270) { // if facing west
+
+    } else if (m_curr_degree == 0) { // if facing north
+
+    }
+    return -1;
+}
+
+int Player::find_safe_tile_when_smelly() {
+    if (m_curr_degree == 90) { // if facing east
+
+    } else if (m_curr_degree == 180) { // if facing south
+
+    } else if (m_curr_degree == 270) { // if facing west
+
+    } else if (m_curr_degree == 0) { // if facing north
+
+    }
+    return -1;
+}
+
+int Player::find_safe_tile_when_breezy_and_smelly() {
+    if (m_curr_degree == 90) { // if facing east
+
+    } else if (m_curr_degree == 180) { // if facing south
+
+    } else if (m_curr_degree == 270) { // if facing west
+
+    } else if (m_curr_degree == 0) { // if facing north
+
+    }
+    return -1;
+}
+
 
 int Player::get_degree_by_direction(MoveDirection md) {
 	switch (md) {
