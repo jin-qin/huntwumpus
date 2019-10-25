@@ -7,14 +7,16 @@
 //
 
 #include <iostream>
+#include <memory>
 #include "Board.h"
 #include "Player.h"
 using namespace std;
 
 int main(int argc, const char * argv[]) {
-    Board board;
-    board.display_board();
-    Player player;
+    auto board = make_shared<Board>();
+    board->generate_new_map(10, 10);
+    board->display_board();
+    Player player(board);
     cout << player.curr_pos_row() << " " << player.curr_pos_col() << endl;
     
     cout << player.select_move() << endl;
