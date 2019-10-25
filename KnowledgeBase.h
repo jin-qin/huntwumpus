@@ -6,18 +6,13 @@
 
 class Tile;
 
-class KnowledgeBase{
-    class Position{
-    public:
-        Position(int row, int col):m_row(0),m_col(0) {}
-        
-        int m_row = 0;
-        int m_col = 0;
-    };
-    
+class KnowledgeBase{    
 public:
     KnowledgeBase(int row_len, int col_len);
 	~KnowledgeBase();
+
+    inline Board::Map& known_map() {return m_map;}
+    inline std::vector<Position>& history() {return m_history_pos;}
 
     void add_knowledge(int row_x, int col_y, Tile status);
     void create_knowledge(int rows, int cols);

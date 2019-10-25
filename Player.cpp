@@ -3,15 +3,27 @@
  */
 
 #include "Player.h"
+#include "KnowledgeBase.h"
 #include <cmath>
+#include <queue>
+#include <functional>
+#include <algorithm>
 #include <iostream>
-using namespace std;
 
-Player::Player() {
+Player::Player(std::weak_ptr<Board> board)
+    : m_board(board)
+{
+    init_kb();
 }
 
-void Player::set_board(std::weak_ptr<Board> board) {
-    m_board = board;
+void Player::init_kb() {
+    auto board = m_board.lock();
+    if (!board) {
+        std::cout << __FUNCTION__ << ":: fatal error, board should not be null!" << std::endl;
+        return;
+    }
+
+    m_kb = std::make_shared<KnowledgeBase>(board->rows(), board->cols());
 }
 
 void Player::move(MoveDirection md) {
@@ -20,27 +32,27 @@ void Player::move(MoveDirection md) {
 
     switch (md) {
         case MD_NORTH: {
-            if (m_curr_pos_row <= 0)
+            if (m_curr_pos.row <= 0)
                 return;
-            m_curr_pos_row -= 1;
+            m_curr_pos.row -= 1;
             break;
         }
         case MD_EAST: {
-            if (m_curr_pos_col >= board->cols() - 1)
+            if (m_curr_pos.col >= board->cols() - 1)
                 return;
-            m_curr_pos_col += 1;
+            m_curr_pos.col += 1;
             break;
         }
         case MD_SOUTH: {
-            if (m_curr_pos_row >= board->rows() - 1)
+            if (m_curr_pos.row >= board->rows() - 1)
                 return;
-            m_curr_pos_row += 1;
+            m_curr_pos.row += 1;
             break;
         }
         case MD_WEST: {
-            if (m_curr_pos_col <= 0)
+            if (m_curr_pos.col <= 0)
                 return;
-            m_curr_pos_col -= 1;
+            m_curr_pos.col -= 1;
             break;
         }
         default:
@@ -76,9 +88,12 @@ void Player::rotate_to(MoveDirection md) {
 void Player::shoot(MoveDirection md) {
     if (m_arrow_throwed) return;
 
+    // rotate first
+    rotate_to(md);
+
     // try to kill wumpus
     auto board = m_board.lock();
-    board->try_kill_wumpus(m_curr_pos_row, m_curr_pos_col, md);
+    board->try_kill_wumpus(m_curr_pos, md);
 
     // update knowledge base to mark wumpus is killed.
     // TO DO
@@ -98,8 +113,73 @@ void Player::climb_out() {
 }
 
 void Player::back_to_entrance() {
-    // should calculate a best route.
-    // TO DO
+    // should calculate a best route, i.e. minimum cost.
+    // here we perform A* algorithm to calculate the shortest path.
+
+    auto path_map = calc_best_path();
+    auto pos= path_map[Position(0, 0)];
+    std::vector<Position> shortest_path;
+    while(path_map[pos] != Position(-1, -1)) {
+        shortest_path.push_back(pos);
+        pos = path_map[pos];
+    }
+    std::reverse(shortest_path.begin(), shortest_path.end());
+
+    for (int i = 0; i < shortest_path.size(); i++) {
+        auto pos = shortest_path[i];
+        auto md = get_direction_by_pos(pos);
+        rotate_to(md);
+        move(md);
+    }
+}
+
+Player::PathMap Player::calc_best_path() {
+    using namespace std;
+
+    if (!m_kb) return PathMap();
+    
+    auto board = m_board.lock();
+    if (!board) return PathMap();
+
+    auto known_map = m_kb->known_map();
+    auto history_pos = m_kb->history();
+    
+    // perform A*
+    priority_queue<Position, vector<Position>> frontier;
+    frontier.push(Position(m_curr_pos));
+
+    auto goal = Position(0, 0); // goal is the entrance.
+    PathMap came_from;
+    CostMap cost_so_far;
+    came_from[m_curr_pos] = Position(-1, -1);
+    cost_so_far[m_curr_pos] = 0;
+    
+    while (!frontier.empty()) {
+        auto current = frontier.top();
+        frontier.pop();
+
+        if (goal == current)
+            break;
+        
+        auto nbs = board->neighbors(current);
+        for (int i = 0; i < nbs.size(); i++) {
+            auto nb = nbs[i];
+            auto new_cost = cost_so_far[current] + board->cost(current, nb);
+            if (cost_so_far.find(nb) == cost_so_far.end() ||
+                new_cost < cost_so_far[nb]) {
+                cost_so_far[nb] = new_cost;
+                nb.priority = new_cost + heuristic(goal, nb);
+                frontier.push(nb);
+                came_from[nb] = current;
+            }
+        }
+    }
+
+    return came_from;
+}
+
+int Player::heuristic(const Position &pos1, const Position &pos2) {
+    return abs(pos1.row - pos2.row) + abs(pos1.col - pos2.col);
 }
 
 int Player::find_tile_not_yet_visited(int possibleMoves[4]) {
@@ -149,4 +229,18 @@ int Player::get_degree_by_direction(MoveDirection md) {
 		std::cout << __FUNCTION__ << ":: wrong direction, pls check your codes!" << std::endl;
 		return 0;
 	}
+}
+
+MoveDirection Player::get_direction_by_pos(const Position &pos) {
+    if (pos.row - m_curr_pos.row > 0)
+        return MD_SOUTH;
+    else
+        return MD_NORTH;
+
+    if (pos.col - m_curr_pos.col > 0)
+        return MD_EAST;
+    else
+        return MD_WEST;
+
+    return MD_UNKNOWN;
 }

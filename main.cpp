@@ -17,11 +17,11 @@ int main(int argc, const char * argv[]) {
     board->generate_new_map(10, 10);
     board->display_board();
     Player player(board);
-    cout << player.curr_pos_row() << " " << player.curr_pos_col() << endl;
+    cout << player.curr_pos().row << " " << player.curr_pos().col << endl;
     
     cout << player.select_move() << endl;
     
-    cout << player.curr_pos_row() << " " << player.curr_pos_col() << endl;
+    cout << player.curr_pos().row << " " << player.curr_pos().col << endl;
     
 
     return 0;

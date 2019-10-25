@@ -59,7 +59,7 @@ void KnowledgeBase::add_knowledge(int row, int col, Tile status){ // Receive the
 
 void KnowledgeBase::add_knowledge_into_history(int row, int col) {
     for (int i = 0; i < m_history_pos.size(); i++) {
-        if (m_history_pos[i].m_row == row && m_history_pos[i].m_col == col)
+        if (m_history_pos[i].row == row && m_history_pos[i].col == col)
             return;
     }
 

@@ -19,6 +19,31 @@ void Board::display_board() {
     util::display_board(m_map);
 }
 
+Board::NeighborsList Board::neighbors(const Position &pos) {
+    auto row = pos.row;
+    auto col = pos.col;
+    auto nbs = NeighborsList();
+
+    if (col > 0)
+        nbs.push_back(Position(row, col - 1));
+    if (row > 0)
+        nbs.push_back(Position(row - 1, col));
+    if (col < m_cols - 1)
+        nbs.push_back(Position(row, col + 1));
+    if (row < m_rows - 1)
+        nbs.push_back(Position(row + 1, col));
+    return nbs;
+}
+
+int Board::cost(const Position &pos1, const Position &pos2) {
+    auto nbs1 = neighbors(pos1);
+    for (int i = 0; i < nbs1.size(); i++)
+        if (nbs1[i].row == pos2.row && nbs1[i].col == pos2.col)
+            return 1;
+
+    return -1;
+}
+
 void Board::generate_new_map(int rows, int cols) {
     cleanup();
 
@@ -32,19 +57,19 @@ void Board::generate_new_map(int rows, int cols) {
     while (ind_gold == 0) {
         ind_gold = rd() % (rows * cols);
     }
-    m_row_gold = ind_gold / cols;
-    m_col_gold = ind_gold % cols;
-    m_map[m_row_gold][m_col_gold]->add_state(Tile::TS_GOLD);
+    m_pos_gold.row = ind_gold / cols;
+    m_pos_gold.col = ind_gold % cols;
+    m_map[m_pos_gold.row][m_pos_gold.col]->add_state(Tile::TS_GOLD);
 
     // generate wumpus
     auto ind_wumpus = 0;
     while (ind_wumpus == ind_gold || ind_wumpus == 0) {
         ind_wumpus = rd() % (rows * cols);
     }
-    m_row_wumpus = ind_wumpus / cols;
-    m_col_wumpus = ind_wumpus % cols;
-    m_map[m_row_wumpus][m_col_wumpus]->add_state(Tile::TS_WUMPUS);
-    generate_smelly_of_wumpus(m_row_wumpus, m_col_wumpus);
+    m_pos_wumpus.row = ind_wumpus / cols;
+    m_pos_wumpus.col = ind_wumpus % cols;
+    m_map[m_pos_wumpus.row][m_pos_wumpus.col ]->add_state(Tile::TS_WUMPUS);
+    generate_smelly_of_wumpus(m_pos_wumpus);
     
     // generate pits.
     for (size_t i = 0; i < m_map.size(); i++) {
@@ -65,14 +90,16 @@ void Board::generate_new_map(int rows, int cols) {
                 m_map[i][j]->remove_state(Tile::TS_SMELLY);
 
                 m_map[i][j]->add_state(Tile::TS_PIT);
-                generate_breezy_of_pit(i, j);
+                generate_breezy_of_pit(Position(i, j));
             }
         }
     }
     
 }
 
-void Board::generate_breezy_of_pit(int row, int col) {
+void Board::generate_breezy_of_pit(const Position &pos) {
+    auto row = pos.row;
+    auto col = pos.col;
     if (row < 0 || row >= m_rows || 
         col < 0 || col >= m_cols ||
         (row == 0 && col == 0)) {
@@ -80,17 +107,18 @@ void Board::generate_breezy_of_pit(int row, int col) {
         return;
     }
 
-    if (col > 0 && !m_map[row][col - 1]->has_pit())
-        m_map[row][col - 1]->add_state(Tile::TS_BREEZY);
-    if (row > 0 && !m_map[row - 1][col]->has_pit())
-        m_map[row - 1][col]->add_state(Tile::TS_BREEZY);
-    if (col < m_cols - 1 && !m_map[row][col + 1]->has_pit())
-        m_map[row][col + 1]->add_state(Tile::TS_BREEZY);
-    if (row < m_rows - 1 && !m_map[row + 1][col]->has_pit())
-        m_map[row + 1][col]->add_state(Tile::TS_BREEZY);
+    auto nbs = neighbors(pos);
+    for (int i = 0; i < nbs.size(); i++) {
+        auto adj_row = nbs[i].row;
+        auto adj_col = nbs[i].col;
+        if (!m_map[adj_row][adj_col]->has_pit())
+            m_map[adj_row][adj_col]->add_state(Tile::TS_BREEZY);
+    }
 }
 
-void Board::generate_smelly_of_wumpus(int row, int col) {
+void Board::generate_smelly_of_wumpus(const Position &pos) {
+    auto row = pos.row;
+    auto col = pos.col;
     if (row < 0 || row >= m_rows || 
         col < 0 || col >= m_cols ||
         (row == 0 && col == 0)) {
@@ -98,40 +126,36 @@ void Board::generate_smelly_of_wumpus(int row, int col) {
         return;
     }
 
-    if (col > 0)
-        m_map[row][col - 1]->add_state(Tile::TS_SMELLY);
-    if (row > 0)
-        m_map[row - 1][col]->add_state(Tile::TS_SMELLY);
-    if (col < m_cols - 1)
-        m_map[row][col + 1]->add_state(Tile::TS_SMELLY);
-    if (row < m_rows - 1)
-        m_map[row + 1][col]->add_state(Tile::TS_SMELLY);
+    auto nbs = neighbors(pos);
+    for (int i = 0; i < nbs.size(); i++)
+        m_map[nbs[i].row][nbs[i].col]->add_state(Tile::TS_SMELLY);
 }
 
 void Board::cleanup() {
     m_rows = 0;
     m_cols = 0;
-    m_row_wumpus = -1;
-    m_col_wumpus = -1;
-    m_row_gold = -1;
-    m_col_gold = -1;
+
+    m_pos_wumpus = Position(-1, -1);
+    m_pos_gold = Position(-1, -1);
 }
 
-bool Board::try_kill_wumpus(int row, int col, MoveDirection md) {
+bool Board::try_kill_wumpus(const Position &pos, MoveDirection md) {
+    auto row = pos.row;
+    auto col = pos.col;
+    auto row_wumpus = m_pos_wumpus.row;
+    auto col_wumpus = m_pos_wumpus.col;
     bool wumpus_killed = false;
-    if (row == m_row_wumpus &&
+    if (row == row_wumpus &&
         (md == MD_WEST || md == MD_EAST)) {
-        if ((m_col_wumpus - col > 0) && (md == MD_EAST))
-            wumpus_killed = true;
-        if ((m_col_wumpus - col < 0) && (md == MD_WEST))
+        if (((col_wumpus - col > 0) && (md == MD_EAST)) || 
+            ((col_wumpus - col < 0) && (md == MD_WEST)))
             wumpus_killed = true;
     }
 
-    if (col == m_col_wumpus &&
+    if (col == col_wumpus &&
         (md == MD_NORTH || md == MD_SOUTH)) {
-        if ((m_row_wumpus - row > 0) && (md == MD_NORTH))
-            wumpus_killed = true;
-        if ((m_row_wumpus - row < 0) && (md == MD_SOUTH))
+        if (((row_wumpus - row > 0) && (md == MD_NORTH)) ||
+            ((row_wumpus - row < 0) && (md == MD_SOUTH)))
             wumpus_killed = true;
     }
 
@@ -142,15 +166,9 @@ bool Board::try_kill_wumpus(int row, int col, MoveDirection md) {
 }
 
 void Board::clear_smelly_and_wumpus() {
-    if (m_col_wumpus > 0)
-        m_map[m_row_wumpus][m_col_wumpus - 1]->remove_state(Tile::TS_SMELLY);
-    if (m_row_wumpus > 0)
-        m_map[m_row_wumpus - 1][m_col_wumpus]->remove_state(Tile::TS_SMELLY);
-    if (m_col_wumpus < m_cols - 1)
-        m_map[m_row_wumpus][m_col_wumpus + 1]->remove_state(Tile::TS_SMELLY);
-    if (m_row_wumpus < m_rows - 1)
-        m_map[m_row_wumpus + 1][m_col_wumpus]->remove_state(Tile::TS_SMELLY);
-
-    m_row_wumpus = -1;
-    m_col_wumpus = -1;
+    auto nbs = neighbors(m_pos_wumpus);
+    for (int i = 0; i < nbs.size(); i++)
+        m_map[nbs[i].row][nbs[i].col]->remove_state(Tile::TS_SMELLY);
+    
+    m_pos_wumpus = Position(-1, -1);
 }
