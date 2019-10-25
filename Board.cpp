@@ -6,8 +6,8 @@
 #include "Tile.h"
 #include "util.h"
 
-#include "time.h"
 #include <iostream>
+#include <random>
 
 Board::Board() {
 }
@@ -26,23 +26,20 @@ void Board::generate_new_map(int rows, int cols) {
     m_rows = rows;
     m_cols = cols;
 
+    std::random_device rd;
     // generate gold
-    srand(time(NULL) / 2);
-    auto ind_gold = -1;
-    while (ind_gold != 0) {
-        ind_gold = rand() % (rows * cols);
-        srand(time(NULL) - ind_gold);
+    auto ind_gold = 0;
+    while (ind_gold == 0) {
+        ind_gold = rd() % (rows * cols);
     }
     m_row_gold = ind_gold / cols;
     m_col_gold = ind_gold % cols;
     m_map[m_row_gold][m_col_gold]->add_state(Tile::TS_GOLD);
 
     // generate wumpus
-    srand(time(NULL) / 3);
-    auto ind_wumpus = -1;
-    while (ind_wumpus != ind_gold && ind_wumpus != 0) {
-        ind_wumpus = rand() % (rows * cols);
-        srand(time(NULL) - ind_wumpus);
+    auto ind_wumpus = 0;
+    while (ind_wumpus == ind_gold || ind_wumpus == 0) {
+        ind_wumpus = rd() % (rows * cols);
     }
     m_row_wumpus = ind_wumpus / cols;
     m_col_wumpus = ind_wumpus % cols;
@@ -57,12 +54,16 @@ void Board::generate_new_map(int rows, int cols) {
                 return;
             }
 
-            if (m_map[i][j]->is_entrance())
+            if (m_map[i][j]->is_entrance() ||
+                m_map[i][j]->has_gold() ||
+                m_map[i][j]->has_wumpus())
                 continue;
             
-            srand(time(NULL) + j);
-            auto prob = rand() % 10 + 1;
+            auto prob = rd() % 10 + 1;
             if (prob <= 2) {
+                m_map[i][j]->remove_state(Tile::TS_BREEZY);
+                m_map[i][j]->remove_state(Tile::TS_SMELLY);
+
                 m_map[i][j]->add_state(Tile::TS_PIT);
                 generate_breezy_of_pit(i, j);
             }
@@ -79,13 +80,13 @@ void Board::generate_breezy_of_pit(int row, int col) {
         return;
     }
 
-    if (col > 0)
+    if (col > 0 && !m_map[row][col - 1]->has_pit())
         m_map[row][col - 1]->add_state(Tile::TS_BREEZY);
-    if (row > 0)
+    if (row > 0 && !m_map[row - 1][col]->has_pit())
         m_map[row - 1][col]->add_state(Tile::TS_BREEZY);
-    if (col < m_cols - 1)
+    if (col < m_cols - 1 && !m_map[row][col + 1]->has_pit())
         m_map[row][col + 1]->add_state(Tile::TS_BREEZY);
-    if (row < m_rows - 1)
+    if (row < m_rows - 1 && !m_map[row + 1][col]->has_pit())
         m_map[row + 1][col]->add_state(Tile::TS_BREEZY);
 }
 
