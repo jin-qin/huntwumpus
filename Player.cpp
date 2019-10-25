@@ -164,7 +164,7 @@ Player::PathMap Player::calc_best_path() {
         auto nbs = board->neighbors(current);
         for (int i = 0; i < nbs.size(); i++) {
             auto nb = nbs[i];
-            auto new_cost = cost_so_far[current] + board->cost(current, nb);
+            auto new_cost = cost_so_far[current] + board->cost(current, nb) + rotate_cost(current, nb);
             if (cost_so_far.find(nb) == cost_so_far.end() ||
                 new_cost < cost_so_far[nb]) {
                 cost_so_far[nb] = new_cost;
@@ -176,6 +176,14 @@ Player::PathMap Player::calc_best_path() {
     }
 
     return came_from;
+}
+
+int Player::rotate_cost(const Position &pos_from, const Position &pos_to) {
+    auto md = get_direction_by_pos(pos_from, pos_to);
+    auto degree_need_to_rotate = abs((get_degree_by_direction(md) - m_curr_degree));
+    degree_need_to_rotate = degree_need_to_rotate > 180 ? 360 - degree_need_to_rotate : degree_need_to_rotate;
+
+    return degree_need_to_rotate;
 }
 
 int Player::heuristic(const Position &pos1, const Position &pos2) {
@@ -232,12 +240,16 @@ int Player::get_degree_by_direction(MoveDirection md) {
 }
 
 MoveDirection Player::get_direction_by_pos(const Position &pos) {
-    if (pos.row - m_curr_pos.row > 0)
+    return get_direction_by_pos(m_curr_pos, pos);
+}
+
+MoveDirection Player::get_direction_by_pos(const Position &pos_from, const Position &pos_to) {
+    if (pos_to.row - pos_from.row > 0)
         return MD_SOUTH;
     else
         return MD_NORTH;
 
-    if (pos.col - m_curr_pos.col > 0)
+    if (pos_to.col - pos_from.col > 0)
         return MD_EAST;
     else
         return MD_WEST;

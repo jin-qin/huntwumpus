@@ -48,12 +48,14 @@ private:
 
     int get_degree_by_direction(MoveDirection md);
 
+    MoveDirection get_direction_by_pos(const Position &pos_from, const Position &pos_to);
     MoveDirection get_direction_by_pos(const Position &pos);
 
     /**
      * @brief perform A* algorithm to get the mininum cost path.
      */
     PathMap calc_best_path();
+    int rotate_cost(const Position &pos_from, const Position &pos_to);
     int heuristic(const Position &pos1, const Position &pos2);
 
 private:
