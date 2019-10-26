@@ -13,15 +13,18 @@ public:
 
     inline Board::Map& known_map() {return m_map;}
     inline std::vector<Position>& history() {return m_history_pos;}
-    void add_knowledge(int row, int col, Tile status);
+    void add_knowledge(const Position &pos, Tile status);
     void create_knowledge(int rows, int cols);
-    void analyze_knowledge(int cur_row, int cur_col);
+    void analyze_knowledge(const Position &pos);
     void update_knowledge();
-    bool judge_edge_status(int row, int col);
-    bool judge_normal_status(int row, int col);
 
 private:
-    void add_knowledge_into_history(int row, int col);
+    void add_knowledge_into_history(const Position &pos);
+
+    NeighborsList unsafe_neighbors(const NeighborsList &nbs);
+
+    void check_add_safe(const Position &pos);
+    void infer_pit_wumpus(const Position &pos);
 
 private:
     int m_row_len = 0, m_col_len = 0, m_counter = 0;
