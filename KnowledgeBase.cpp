@@ -81,9 +81,9 @@ void KnowledgeBase::analyze_knowledge(const Position &pos) {//use the current in
 }
 
 NeighborsList KnowledgeBase::unsafe_neighbors(const NeighborsList &nbs) {
-    NeighborsList unsafe_nbs();
+    NeighborsList unsafe_nbs;
     for (int i = 0; i < nbs.size(); i++) {
-        if (!nbs[i]->is_safe())
+        if (!m_map[nbs[i].row][nbs[i].col]->is_safe())
             unsafe_nbs.push_back(nbs[i]);
     }
 
@@ -108,7 +108,7 @@ void KnowledgeBase::infer_pit_wumpus(const Position &pos) {
     auto row = pos.row;
     auto col = pos.col;
 
-    std::pair<Tile::TileState, Tile::TileState> target_states;
+    std::vector< std::pair<Tile::TileState, Tile::TileState> > target_states;
     if (m_map[row][col]->is_breezy())
         target_states.push_back(std::make_pair(Tile::TS_BREEZY, Tile::TS_PIT));
     if (m_map[row][col]->is_smelly())
