@@ -17,15 +17,111 @@ KnowledgeBase::~KnowledgeBase(){
 
 }
 
-void KnowledgeBase::judge_status(){
+void KnowledgeBase::judge_upper_edge_status(int row, int col, int type){
+    bool condtion_p = false, condition_q = false;
+    condition_p = !(m_map[row][col-1]->is_safe()^m_map[row][col+1]->is_safe()^m_map[row+1][col]->is_safe());
+    condition_q = (m_map[row][col-1]->is_safe()||m_map[row][col+1]->is_safe()||m_map[row+1][col]->is_safe());
     
+    if(0 == type){//breezy
+        if(condition_p && condition_q){
+            if(!m_map[row][col-1]->is_safe()){
+                m_map[row][col-1]->add_state(Tile::TS_PIT);
+                m_map[row][col-1]->add_state(Tile::TS_DETERMINED);
+            }
+            if(!m_map[row][col+1]->is_safe()){
+                m_map[row][col+1]->add_state(Tile::TS_PIT);
+                m_map[row][col+1]->add_state(Tile::TS_DETERMINED);
+            }
+            if(!m_map[row+1][col]->is_safe()){
+                m_map[row+1][col]->add_state(Tile::TS_PIT);
+                m_map[row+1][col]->add_state(Tile::TS_DETERMINED);
+            }           
+        }
+    }else if(1 == type){//smelly
+
+    }
+    
+}
+
+void KnowledgeBase::judge_bottom_edge_status(int row, int col, int type){
+    bool condtion_p = false, condition_q = false;
+    condition_p = !(m_map[row][col-1]->is_safe()^m_map[row][col+1]->is_safe()^m_map[row-1][col]->is_safe());
+    condition_q = (m_map[row][col-1]->is_safe()||m_map[row][col+1]->is_safe()||m_map[row-1][col]->is_safe());
+
+    if(0 == type){
+        if(condition_p && condition_q){//need modification
+            if(!m_map[row][col-1]->is_safe()){
+                m_map[row][col-1]->add_state(Tile::TS_PIT);
+                m_map[row][col-1]->add_state(Tile::TS_DETERMINED);
+            }
+            if(!m_map[row][col+1]->is_safe()){
+                m_map[row][col+1]->add_state(Tile::TS_PIT);
+                m_map[row][col+1]->add_state(Tile::TS_DETERMINED);
+            }
+            if(!m_map[row-1][col]->is_safe()){
+                m_map[row-1][col]->add_state(Tile::TS_PIT);
+                m_map[row-1][col]->add_state(Tile::TS_DETERMINED);
+            }
+        }
+    }else if(1 == type){
+
+    }
+}
+
+void KnowledgeBase::judge_left_edge_status(int row, int col, int type){
+    bool condtion_p = false, condition_q = false;
+    condition_p = !(m_map[row][col+1]->is_safe()^m_map[row+1][col]->is_safe()^m_map[row-1][col]->is_safe());
+    condition_q = (m_map[row][col+1]->is_safe()||m_map[row+1][col]->is_safe()||m_map[row-1][col]->is_safe());
+    if(0 == type){
+        if(condition_p && condition_q){//need modification
+            if(!m_map[row][col+1]->is_safe()){
+                m_map[row][col+1]->add_state(Tile::TS_PIT);
+                m_map[row][col+1]->add_state(Tile::TS_DETERMINED);
+            }
+            if(!m_map[row+1][col]->is_safe()){
+                m_map[row+1][col]->add_state(Tile::TS_PIT);
+                m_map[row+1][col]->add_state(Tile::TS_DETERMINED);
+            }
+            if(!m_map[row-1][col]->is_safe()){
+                m_map[row-1][col]->add_state(Tile::TS_PIT);
+                m_map[row-1][col]->add_state(Tile::TS_DETERMINED);
+            }
+        }
+    }else if(1 == type){
+
+    }
+}
+
+void KnowledgeBase::judge_right_edge_status(int row, int col, int type){
+    bool condtion_p = false, condition_q = false;
+    condition_p = !(m_map[row][col-1]->is_safe()^m_map[row+1][col]->is_safe()^m_map[row-1][col]->is_safe());
+    condition_q = (m_map[row][col-1]->is_safe()||m_map[row+1][col]->is_safe()||m_map[row-1][col]->is_safe());
+    if(0 == type){
+        if(condition_p && condition_q){//need modification
+            if(!m_map[row][col-1]->is_safe()){
+                m_map[row][col-1]->add_state(Tile::TS_PIT);
+                m_map[row][col-1]->add_state(Tile::TS_DETERMINED);
+            }
+            if(!m_map[row+1][col]->is_safe()){
+                m_map[row+1][col]->add_state(Tile::TS_PIT);
+                m_map[row+1][col]->add_state(Tile::TS_DETERMINED);
+            }
+            if(!m_map[row-1][col]->is_safe()){
+                m_map[row-1][col]->add_state(Tile::TS_PIT);
+                m_map[row-1][col]->add_state(Tile::TS_DETERMINED);
+            }
+        }
+    }else if(1 == type){
+
+    }
+}
+
+bool KnowledgeBase::judge_normal_status(int row, int col){
+
 }
   
 void KnowledgeBase::create_knowledge(int rows, int cols){ // Initialize the knowledge board
 	m_map = util::create_new_map(rows, rows);
-
-    //m_row = new int[x*y];//To be initiated, may be -1?
-    //m_pos_y = new int[x*y];//To be initiated
 }
 
 void KnowledgeBase::add_knowledge(int row, int col, Tile status){ // Receive the new information and add to current map
@@ -55,6 +151,7 @@ void KnowledgeBase::add_knowledge(int row, int col, Tile status){ // Receive the
 
     add_knowledge_into_history(row, col);
     //To continue
+    analyze_knowledge(row, col);
 };
 
 void KnowledgeBase::add_knowledge_into_history(int row, int col) {
@@ -66,7 +163,7 @@ void KnowledgeBase::add_knowledge_into_history(int row, int col) {
     m_history_pos.push_back(Position(row, col));
 }
 
-void KnowledgeBase::analyze(int cur_row, int cur_col){//use the current information to infer the known space
+void KnowledgeBase::analyze_knowledge(int cur_row, int cur_col){//use the current information to infer the known space
     //rule: if 3 of 4 points around the position which is smelly or breezy is safe, the remaining point is the pit/wumpus.
     //search rule: searching from current position to the first position by using array m_row and m_pos_y.
     int row, col;
@@ -75,18 +172,18 @@ void KnowledgeBase::analyze(int cur_row, int cur_col){//use the current informat
     //TO DO
     while(true){//Q:set_state or add_state?
         if(!m_map[row][col]->is_breezy()&&!m_map[row][col]->is_smelly()){
-            m_map[row][col]->set_state(Tile::TS_SAFE);
+            m_map[row][col]->add_state(Tile::TS_SAFE);
             if(row > 0){
-                m_map[row-1][col]->set_state(Tile::TS_SAFE);
+                m_map[row-1][col]->add_state(Tile::TS_SAFE);
             }
             if(row < m_col_len -1){
-                m_map[row+1][col]->set_state(Tile::TS_SAFE);
+                m_map[row+1][col]->add_state(Tile::TS_SAFE);
             }
             if(col > 0){
-                m_map[row][col-1]->set_state(Tile::TS_SAFE);
+                m_map[row][col-1]->add_state(Tile::TS_SAFE);
             }
             if(col < m_row_len -1){
-                m_map[col][col+1]->set_state(Tile::TS_SAFE);
+                m_map[col][col+1]->add_state(Tile::TS_SAFE);
             }
         }
 
@@ -113,20 +210,7 @@ void KnowledgeBase::analyze(int cur_row, int cur_col){//use the current informat
                     }
                 }
                 else{
-                    if(!(m_map[row][col-1]->is_safe()^m_map[row][col+1]->is_safe()^m_map[row+1][col]->is_safe())){
-                        if(!m_map[row][col-1]->is_safe()){
-                            m_map[row][col-1]->add_state(Tile::TS_PIT);
-                            m_map[row][col-1]->add_state(Tile::TS_DETERMINED);
-                        }
-                        if(!m_map[row][col+1]->is_safe()){
-                            m_map[row][col+1]->add_state(Tile::TS_PIT);
-                            m_map[row][col+1]->add_state(Tile::TS_DETERMINED);
-                        }
-                        if(!m_map[row+1][col]->is_safe()){
-                            m_map[row+1][col]->add_state(Tile::TS_PIT);
-                            m_map[row+1][col]->add_state(Tile::TS_DETERMINED);
-                        }
-                    }
+                    judge_upper_edge_status(row,col,0);
                 }
             }else if(m_row_len - 1 == row){
                 if(0 == col){
@@ -150,33 +234,15 @@ void KnowledgeBase::analyze(int cur_row, int cur_col){//use the current informat
                     }
                 }
                 else{
-                    bool p,q;
-                    p = false;
-                    q = false;
-                    p = !(m_map[row][col-1]->is_safe()^m_map[row][col+1]->is_safe()^m_map[row-1][col]->is_safe());
-                    q = !(m_map[row][col-1]->is_safe()||m_map[row][col+1]->is_safe()||m_map[row-1][col]->is_safe());
-                    if(p && q){//need modification
-                        if(!m_map[row][col-1]->is_safe()){
-                            m_map[row][col-1]->add_state(Tile::TS_PIT);
-                            m_map[row][col-1]->add_state(Tile::TS_DETERMINED);
-                        }
-                        if(!m_map[row][col+1]->is_safe()){
-                            m_map[row][col+1]->add_state(Tile::TS_PIT);
-                            m_map[row][col+1]->add_state(Tile::TS_DETERMINED);
-                        }
-                        if(!m_map[row-1][col]->is_safe()){
-                            m_map[row-1][col]->add_state(Tile::TS_PIT);
-                            m_map[row-1][col]->add_state(Tile::TS_DETERMINED);
-                        }
-                    }
+                    judge_bottom_edge_status(row, col, 0);
                 }
             }else{
                 if(0 == col){
-
-                }else if(m_col_len - 1 == row){
-
+                    judge_left_edge_status(row, col, 0);
+                }else if(m_col_len - 1 == col){
+                    judge_right_edge_status(row, col, 0);
                 }else{
-
+                    judge_normal_status(row,col,0);
                 }
             }
         }
@@ -185,7 +251,7 @@ void KnowledgeBase::analyze(int cur_row, int cur_col){//use the current informat
 
         }
     }
-};
+}
 
 void KnowledgeBase::update_knowledge(){
 

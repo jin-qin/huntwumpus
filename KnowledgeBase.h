@@ -13,12 +13,12 @@ public:
 
     inline Board::Map& known_map() {return m_map;}
     inline std::vector<Position>& history() {return m_history_pos;}
-
-    void add_knowledge(int row_x, int col_y, Tile status);
+    void add_knowledge(int row, int col, Tile status);
     void create_knowledge(int rows, int cols);
-    void analyze(int cur_x, int cur_y);
+    void analyze_knowledge(int cur_row, int cur_col);
     void update_knowledge();
-    void judge_status();
+    bool judge_edge_status(int row, int col);
+    bool judge_normal_status(int row, int col);
 
 private:
     void add_knowledge_into_history(int row, int col);
