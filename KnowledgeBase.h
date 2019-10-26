@@ -25,6 +25,7 @@ private:
 
     void check_add_safe(const Position &pos);
     void infer_pit_wumpus(const Position &pos);
+    void infer_history(const Position &pos);
 
 private:
     int m_row_len = 0, m_col_len = 0, m_counter = 0;
