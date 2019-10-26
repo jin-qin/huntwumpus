@@ -17,6 +17,8 @@ void display_board(const Board::Map &map);
 Board::Map create_new_map(int rows, int cols);
 void destroy_map(Board::Map &map);
 
+NeighborsList neighbors(int rows, int cols, const Position &pos);
+
 }
 
 #endif // UTIL_H

@@ -62,4 +62,6 @@ namespace std {
     };
 }
 
+typedef std::vector< Position > NeighborsList;
+
 #endif

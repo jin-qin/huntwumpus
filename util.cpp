@@ -62,4 +62,20 @@ Board::Map create_new_map(int rows, int cols) {
     return map;
 }
 
+NeighborsList neighbors(int rows, int cols, const Position &pos) {
+    auto row = pos.row;
+    auto col = pos.col;
+    auto nbs = NeighborsList();
+
+    if (col > 0)
+        nbs.push_back(Position(row, col - 1));
+    if (row > 0)
+        nbs.push_back(Position(row - 1, col));
+    if (col < cols - 1)
+        nbs.push_back(Position(row, col + 1));
+    if (row < rows - 1)
+        nbs.push_back(Position(row + 1, col));
+    return nbs;
+}
+
 }

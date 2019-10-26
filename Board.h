@@ -13,7 +13,6 @@ class Tile;
 class Board {
 public:
     typedef std::vector< std::vector< std::shared_ptr<Tile> > > Map;
-    typedef std::vector< Position > NeighborsList;
 
 public:
     Board();

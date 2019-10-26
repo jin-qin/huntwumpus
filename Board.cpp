@@ -19,20 +19,8 @@ void Board::display_board() {
     util::display_board(m_map);
 }
 
-Board::NeighborsList Board::neighbors(const Position &pos) {
-    auto row = pos.row;
-    auto col = pos.col;
-    auto nbs = NeighborsList();
-
-    if (col > 0)
-        nbs.push_back(Position(row, col - 1));
-    if (row > 0)
-        nbs.push_back(Position(row - 1, col));
-    if (col < m_cols - 1)
-        nbs.push_back(Position(row, col + 1));
-    if (row < m_rows - 1)
-        nbs.push_back(Position(row + 1, col));
-    return nbs;
+NeighborsList Board::neighbors(const Position &pos) {
+    return util::neighbors(m_rows, m_cols, pos);
 }
 
 int Board::cost(const Position &pos1, const Position &pos2) {

@@ -139,14 +139,9 @@ void KnowledgeBase::add_knowledge(int row, int col, Tile status){ // Receive the
     
     for (int i = 0; i < target_states.size(); i++) {
         m_map[row][col]->add_state(target_states[i].first);
-        if(row > 0)
-            m_map[row][col]->add_state(target_states[i].second);
-        if(row < m_row_len -1)
-            m_map[row+1][col]->add_state(target_states[i].second);
-        if(col > 0)
-            m_map[row][col-1]->add_state(target_states[i].second);
-        if(col < m_col_len -1)
-            m_map[row][col+1]->add_state(target_states[i].second);
+        auto nbs = util::neighbors(m_row_len, m_col_len, Position(row, col));
+        for (int j = 0; j < nbs.size(); j++)
+            m_map[nbs[j].row][nbs[j].col]->add_state(target_states[i].second);
     }
 
     add_knowledge_into_history(row, col);
