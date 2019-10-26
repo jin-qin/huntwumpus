@@ -4,6 +4,7 @@
 
 #include "Player.h"
 #include "KnowledgeBase.h"
+#include "util.h"
 #include <cmath>
 #include <queue>
 #include <functional>
@@ -142,7 +143,6 @@ Player::PathMap Player::calc_best_path() {
     if (!board) return PathMap();
 
     auto known_map = m_kb->known_map();
-    auto history_pos = m_kb->history();
     
     // perform A*
     priority_queue<Position, vector<Position>> frontier;
@@ -161,7 +161,7 @@ Player::PathMap Player::calc_best_path() {
         if (goal == current)
             break;
         
-        auto nbs = board->neighbors(current);
+        auto nbs = available_neighbors(current);
         for (int i = 0; i < nbs.size(); i++) {
             auto nb = nbs[i];
             auto new_cost = cost_so_far[current] + board->cost(current, nb) + rotate_cost(current, nb);
@@ -188,6 +188,23 @@ int Player::rotate_cost(const Position &pos_from, const Position &pos_to) {
 
 int Player::heuristic(const Position &pos1, const Position &pos2) {
     return abs(pos1.row - pos2.row) + abs(pos1.col - pos2.col);
+}
+
+NeighborsList Player::available_neighbors(const Position &pos) {
+    auto board = m_board.lock();
+    if (!board || !m_kb) return NeighborsList();
+    
+    auto nbs = util::neighbors(board->rows(), board->cols(), pos);
+
+    for (auto it = nbs.begin(); it != nbs.end();) {
+        if (!m_kb->is_safe(*it)) {
+            nbs.erase(it);
+        }
+        else
+            ++it;
+    }
+
+    return nbs;
 }
 
 int Player::find_tile_not_yet_visited(int possibleMoves[4]) {

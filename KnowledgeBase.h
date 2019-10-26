@@ -13,10 +13,12 @@ public:
 
     inline Board::Map& known_map() {return m_map;}
     inline std::vector<Position>& history() {return m_history_pos;}
-    void add_knowledge(const Position &pos, Tile status);
+
+    bool is_safe(const Position &pos);
+
     void create_knowledge(int rows, int cols);
+    void add_knowledge(const Position &pos, Tile status);
     void analyze_knowledge(const Position &pos);
-    void update_knowledge();
 
 private:
     void add_knowledge_into_history(const Position &pos);

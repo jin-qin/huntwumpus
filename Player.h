@@ -57,6 +57,7 @@ private:
     PathMap calc_best_path();
     int rotate_cost(const Position &pos_from, const Position &pos_to);
     int heuristic(const Position &pos1, const Position &pos2);
+    NeighborsList available_neighbors(const Position &pos);
 
 private:
     std::weak_ptr<Board> m_board; // this is not cheating, since Board class does not provide map info.

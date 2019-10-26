@@ -16,6 +16,10 @@ KnowledgeBase::KnowledgeBase(int row_len, int col_len)
 KnowledgeBase::~KnowledgeBase(){
 
 }
+
+bool KnowledgeBase::is_safe(const Position &pos) {
+    return m_map[pos.row][pos.col]->is_safe();
+}
   
 void KnowledgeBase::create_knowledge(int rows, int cols){ // Initialize the knowledge board
 	m_map = util::create_new_map(rows, rows);
@@ -131,10 +135,6 @@ void KnowledgeBase::infer_history(const Position &pos) {
         auto p = m_history_pos[i];
         infer_pit_wumpus(p);
     }
-}
-
-void KnowledgeBase::update_knowledge() {
-
 }
 
 
