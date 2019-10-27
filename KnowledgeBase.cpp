@@ -3,6 +3,7 @@
 #include "common.h"
 #include "util.h"
 #include <utility>
+#include <iostream>
 
 using namespace std;
 
@@ -17,8 +18,58 @@ KnowledgeBase::~KnowledgeBase(){
 
 }
 
-bool KnowledgeBase::is_safe(const Position &pos) {
+bool KnowledgeBase::is_safe(const Position &pos) const {
     return m_map[pos.row][pos.col]->is_safe();
+}
+
+PositionList KnowledgeBase::safe_neighbors(const Position &pos, bool use_history) const {
+    PositionList safe_nbs;
+    auto nbs = util::neighbors(m_row_len, m_col_len, pos);
+    for(int i = 0; i < nbs.size(); i++) {
+        if (is_safe(nbs[i]) && (use_history || !in_history(nbs[i])))
+            safe_nbs.push_back(nbs[i]);
+    }
+
+    return safe_nbs;
+}
+
+PositionList KnowledgeBase::safe_history_neighbors(const Position &pos) const {
+    PositionList safe_his_nbs;
+    for (int i = m_history_pos.size() - 1; i >= 0 ; i--) {
+        auto safe_nbs = safe_neighbors(m_history_pos[i]);
+        for (int j = 0; j < safe_nbs.size(); j++) {
+            safe_his_nbs.push_back(safe_nbs[j]);
+        }
+    }
+
+    return safe_his_nbs;
+}
+
+PositionList KnowledgeBase::available_neighbors(const Position &pos, bool use_history) const {
+    auto nbs = util::neighbors(m_row_len, m_col_len, pos);
+    for (auto it = nbs.begin(); it != nbs.end();) {
+        auto t = tile(*it);
+        if (t->mustbe_wumpus() ||
+            t->mustbe_pit() ||
+            (!use_history && in_history(*it))) {
+            nbs.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    return nbs;
+}
+
+PositionList KnowledgeBase::available_history_neighbors(const Position &pos) const {
+    PositionList avail_his_nbs;
+    for (int i = m_history_pos.size() - 1; i >= 0 ; i--) {
+        auto avail_nbs = available_neighbors(m_history_pos[i]);
+        for (int j = 0; j < avail_nbs.size(); j++) {
+            avail_his_nbs.push_back(avail_nbs[j]);
+        }
+    }
+
+    return avail_his_nbs;
 }
 
 void KnowledgeBase::set_wumpus_killed() {
@@ -87,8 +138,8 @@ void KnowledgeBase::analyze_knowledge(const Position &pos) {//use the current in
     infer_history(pos);
 }
 
-NeighborsList KnowledgeBase::unsafe_neighbors(const NeighborsList &nbs) {
-    NeighborsList unsafe_nbs;
+PositionList KnowledgeBase::unsafe_neighbors(const PositionList &nbs) {
+    PositionList unsafe_nbs;
     for (int i = 0; i < nbs.size(); i++) {
         if (!m_map[nbs[i].row][nbs[i].col]->is_safe())
             unsafe_nbs.push_back(nbs[i]);
@@ -102,7 +153,7 @@ void KnowledgeBase::check_add_safe(const Position &pos) {
     
     if(!tile->is_breezy() && !tile->is_smelly()) {
         auto nbs = util::neighbors(m_row_len, m_col_len, pos);
-        for(int i = 0; i < nbs.size(); i++){
+        for(int i = 0; i < nbs.size(); i++) {
             m_map[nbs[i].row][nbs[i].col]->add_state(Tile::TS_SAFE);
             m_map[nbs[i].row][nbs[i].col]->remove_state(Tile::TS_PIT);
             m_map[nbs[i].row][nbs[i].col]->remove_state(Tile::TS_WUMPUS);
@@ -149,7 +200,15 @@ void KnowledgeBase::clear_wumpus_smelly() {
     }
 }
 
+std::shared_ptr<Tile> KnowledgeBase::tile(const Position &pos) const {
+    return m_map[pos.row][pos.col];
+}
 
+bool KnowledgeBase::in_history(const Position &pos) const {
+    for (int i = 0; i < m_history_pos.size(); i++) {
+        if (pos == m_history_pos[i])
+            return true;
+    }
 
-
-
+    return false;
+}

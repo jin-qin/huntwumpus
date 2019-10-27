@@ -20,13 +20,9 @@ public:
 
     void display_board();
 
-    NeighborsList neighbors(const Position &pos);
-
-    /**
-     * @brief calculate the cost between pos1 and pos2 which should be neighbors
-     * @return return the cost if they are neighbors, otherwise return -1.
-     */
-    int cost(const Position &pos1, const Position &pos2);
+    PositionList neighbors(const Position &pos);
+    
+    std::shared_ptr<Tile> tile(const Position &pos);
 
     void generate_new_map(int rows, int cols);
 

@@ -6,9 +6,8 @@
 #include "KnowledgeBase.h"
 #include "util.h"
 #include <cmath>
-#include <queue>
 #include <functional>
-#include <algorithm>
+#include <random>
 #include <iostream>
 
 Player::Player(std::weak_ptr<Board> board)
@@ -25,6 +24,9 @@ void Player::init_kb() {
     }
 
     m_kb = std::make_shared<KnowledgeBase>(board->rows(), board->cols());
+
+    // initial knowledge
+    m_kb->add_knowledge(m_curr_pos, *(current_tile()));
 }
 
 void Player::move(MoveDirection md) {
@@ -65,44 +67,99 @@ void Player::move(MoveDirection md) {
     // calculate rotate after the move action.
     // do not try to put it before move action, if you cannot move, then you should not rotate.
     rotate_to(md);
+
+    check_move_result();
+
+    add_new_knowledge();
 }
 
-Position Player::select_move() {
-    if (!m_kb) return Position(-1, -1);
-    
-    // if there are no adjacent dangers
-    // if (!knownBoard[currPosX][currPosY].is_breezy() && !knownBoard[currPosX][currPosY].is_smelly()) {
-    //     thisMove = find_tile_not_yet_visited(possibleMoves);
-    // }
-    
-    // move(thisMove);
-    // return thisMove;
+PositionList Player::select_move() {
+    auto best_mv_path = best_move(m_curr_pos);
+    if (best_mv_path.empty()) {
+        std::cout << __FUNCTION__ << ":: error: cannot find an available move!" << std::endl;
+        return best_mv_path;
+    }
 
-	return Position(-1, -1);
+    for (int i = 0; i < best_mv_path.size(); i++)
+        move(util::next_direction(m_curr_pos, best_mv_path[i]));
+
+    return best_mv_path;
+}
+
+PositionList Player::best_move(const Position &pos) {
+    if (!m_kb) return PositionList();
+
+    auto safe_nbs = m_kb->safe_neighbors(m_curr_pos);
+    if (safe_nbs.size() > 0) {
+        std::cout << __FUNCTION__ << ":: safe_neighbors: " << safe_nbs.size() << std::endl;
+        return select_best_move(safe_nbs);
+    }
+
+    auto safe_his_nbs = m_kb->safe_history_neighbors(m_curr_pos);
+    if (safe_his_nbs.size() > 0) {
+        std::cout << __FUNCTION__ << ":: safe_history_neighbors: " << safe_his_nbs.size() << std::endl;
+        return select_best_move(safe_his_nbs);
+    }
+    
+    auto avail_nbs = m_kb->available_neighbors(m_curr_pos);
+    if (avail_nbs.size() > 0) {
+        std::cout << __FUNCTION__ << ":: available_neighbors: " << avail_nbs.size() << std::endl;
+        return select_best_move(avail_nbs);
+    }
+    
+    auto avail_his_nbs = m_kb->available_history_neighbors(m_curr_pos);
+    if (avail_his_nbs.size() > 0) {
+        std::cout << __FUNCTION__ << ":: available_history_neighbors: " << avail_his_nbs.size() << std::endl;
+        return select_best_move(avail_his_nbs);
+    }
+
+    std::cout << __FUNCTION__ << ":: " << "no available moves!" << std::endl;
+
+    return PositionList();
+}
+
+PositionList Player::select_best_move(const PositionList &pref_mvs) {
+    PositionList mv_path;
+
+    int min_cost = INT32_MAX;
+    for (int i = 0; i < pref_mvs.size(); i++) {
+        PositionList mv_path_tmp;
+        int cost = util::min_cost(*m_kb, m_curr_pos, pref_mvs[i], m_curr_degree, mv_path_tmp);
+        // std::cout << __FUNCTION__ << ":: min cost:" << cost << std::endl;
+        if (min_cost > cost) {
+            min_cost = cost;
+            mv_path = mv_path_tmp;
+        }
+    }
+    return mv_path;
 }
 
 void Player::rotate_to(MoveDirection md) {
-    auto degree_need_to_rotate = abs((get_degree_by_direction(md) - m_curr_degree));
-    degree_need_to_rotate = degree_need_to_rotate > 180 ? 360 - degree_need_to_rotate : degree_need_to_rotate;
-    m_score -= degree_need_to_rotate / 90;
-    m_curr_degree = get_degree_by_direction(md);
+    auto degree_new = util::degree_by_direction(md);
+    auto degree_rotate = abs((degree_new - m_curr_degree));
+    degree_rotate = degree_rotate > 180 ? 360 - degree_rotate : degree_rotate;
+    m_score -= degree_rotate / 90;
+    m_curr_degree = degree_new;
 }
 
 void Player::shoot(MoveDirection md) {
     if (m_arrow_throwed) return;
+    m_arrow_throwed = true;
 
     // rotate first
     rotate_to(md);
 
     // try to kill wumpus
     auto board = m_board.lock();
-    bool wumpus_killed = board->try_kill_wumpus(m_curr_pos, md);
+    m_wumpus_killed = board->try_kill_wumpus(m_curr_pos, md);
 
     // update knowledge base to mark wumpus is killed.
     if (!m_kb) return;
-    if (wumpus_killed) m_kb->set_wumpus_killed();
+    if (m_wumpus_killed) m_kb->set_wumpus_killed();
 
     m_score -= 11; // -1 for action shoot, -10 for using up arrows.
+
+    check_mission_compelete();
 }
 
 void Player::grab_gold() {
@@ -111,145 +168,101 @@ void Player::grab_gold() {
     m_score -= 1;
 }
 void Player::climb_out() {
-    // TO DO
+    if (m_curr_pos != Position(0, 0)) {
+        std::cout << __FUNCTION__ << ":: failed, your position is not in the start, pls check your codes!" << std::endl;
+        return;
+    }
 
     m_score += 999; // +1000 for climbing out the cave with the gold, -1 for action climb.
+
+    on_game_over();
 }
 
 void Player::back_to_entrance() {
     // should calculate a best route, i.e. minimum cost.
     // here we perform A* algorithm to calculate the shortest path.
 
-    auto path_map = calc_best_path();
-    auto pos= path_map[Position(0, 0)];
-    std::vector<Position> shortest_path;
-    while(path_map[pos] != Position(-1, -1)) {
-        shortest_path.push_back(pos);
-        pos = path_map[pos];
-    }
-    std::reverse(shortest_path.begin(), shortest_path.end());
+    if (!m_kb) return;
 
-    for (int i = 0; i < shortest_path.size(); i++) {
-        auto pos = shortest_path[i];
-        auto md = get_direction_by_pos(pos);
-        rotate_to(md);
+    auto result = util::calc_best_path(*m_kb, m_curr_pos, Position(0, 0), m_curr_degree);
+    auto best_path = result.first;
+    for (int i = 0; i < best_path.size(); i++) {
+        auto pos = best_path[i];
+        auto md = next_direction(pos);
         move(md);
     }
 }
 
-Player::PathMap Player::calc_best_path() {
-    using namespace std;
+MoveDirection Player::next_direction(const Position &pos_to) {
+    return util::next_direction(m_curr_pos, pos_to);
+}
 
-    if (!m_kb) return PathMap();
+void Player::add_new_knowledge() {
+    auto curr_tile = current_tile();
+    m_kb->add_knowledge(m_curr_pos, *curr_tile);
+}
+
+void Player::check_move_result() {
+    auto curr_tile = current_tile();
+
+    // check died
+    if (curr_tile->mustbe_wumpus() ||
+        curr_tile->mustbe_pit()) {
+        m_score -= 1000;
+        on_game_over();
+        return;
+    }
+
+    // check grab gold
+    if (curr_tile->has_gold()) {
+        grab_gold();
+        on_grab_gold();
+    }
+}
+
+void Player::on_grab_gold() {
+    check_mission_compelete();
+}
+
+bool Player::mission_complete() {
+    if (game_mode_get_gold_only() && m_has_gold)
+        return true;
+    if (game_mode_kill_wumpus_only() && m_wumpus_killed)
+        return true;
+    if (game_mode_both() &&
+        m_has_gold &&
+        m_wumpus_killed)
+        return true;
     
+    return false;
+}
+
+void Player::check_mission_compelete() {
+    if (mission_complete()) {
+        back_to_entrance();
+        climb_out();
+        on_game_over();
+    }
+}
+
+void Player::on_game_over() {
+    m_game_over = true;
+}
+
+std::shared_ptr<Tile> Player::current_tile() {
     auto board = m_board.lock();
-    if (!board) return PathMap();
-
-    auto known_map = m_kb->known_map();
-    
-    // perform A*
-    priority_queue<Position, vector<Position>> frontier;
-    frontier.push(Position(m_curr_pos));
-
-    auto goal = Position(0, 0); // goal is the entrance.
-    PathMap came_from;
-    CostMap cost_so_far;
-    came_from[m_curr_pos] = Position(-1, -1);
-    cost_so_far[m_curr_pos] = 0;
-    
-    while (!frontier.empty()) {
-        auto current = frontier.top();
-        frontier.pop();
-
-        if (goal == current)
-            break;
-        
-        auto nbs = available_neighbors(current);
-        for (int i = 0; i < nbs.size(); i++) {
-            auto nb = nbs[i];
-            auto new_cost = cost_so_far[current] + board->cost(current, nb) + rotate_cost(current, nb);
-            if (cost_so_far.find(nb) == cost_so_far.end() ||
-                new_cost < cost_so_far[nb]) {
-                cost_so_far[nb] = new_cost;
-                nb.priority = new_cost + heuristic(goal, nb);
-                frontier.push(nb);
-                came_from[nb] = current;
-            }
-        }
-    }
-
-    return came_from;
+    if (!board) return 0;
+    return board->tile(m_curr_pos);
 }
 
-int Player::rotate_cost(const Position &pos_from, const Position &pos_to) {
-    auto md = get_direction_by_pos(pos_from, pos_to);
-    auto degree_need_to_rotate = abs((get_degree_by_direction(md) - m_curr_degree));
-    degree_need_to_rotate = degree_need_to_rotate > 180 ? 360 - degree_need_to_rotate : degree_need_to_rotate;
-
-    return degree_need_to_rotate;
+bool Player::game_mode_get_gold_only() {
+    return (0 != (m_game_mode & GM_GET_GOLD)) && (0 == (m_game_mode & GM_KILL_WUMPUS));
 }
 
-int Player::heuristic(const Position &pos1, const Position &pos2) {
-    return abs(pos1.row - pos2.row) + abs(pos1.col - pos2.col);
+bool Player::game_mode_kill_wumpus_only() {
+    return (0 != (m_game_mode & GM_KILL_WUMPUS)) && (0 == (m_game_mode & GM_GET_GOLD));
 }
 
-NeighborsList Player::available_neighbors(const Position &pos) {
-    auto board = m_board.lock();
-    if (!board || !m_kb) return NeighborsList();
-    
-    auto nbs = util::neighbors(board->rows(), board->cols(), pos);
-
-    for (auto it = nbs.begin(); it != nbs.end();) {
-        if (!m_kb->is_safe(*it)) {
-            nbs.erase(it);
-        }
-        else
-            ++it;
-    }
-
-    return nbs;
-}
-
-int Player::get_degree_by_direction(MoveDirection md) {
-	switch (md) {
-	case MD_UNKNOWN:
-		std::cout << __FUNCTION__ << ":: wrong direction, pls check your codes!" << std::endl;
-		return 0;
-	case MD_NORTH:
-		return 0;
-	case MD_EAST:
-		return 90;
-	case MD_SOUTH:
-		return 180;
-	case MD_WEST:
-		return 270;
-	default:
-		std::cout << __FUNCTION__ << ":: wrong direction, pls check your codes!" << std::endl;
-		return 0;
-	}
-}
-
-MoveDirection Player::get_direction_by_pos(const Position &pos) {
-    return get_direction_by_pos(m_curr_pos, pos);
-}
-
-MoveDirection Player::get_direction_by_pos(const Position &pos_from, const Position &pos_to) {
-    if (abs(pos_to.row - pos_from.row) > 1 ||
-        abs(pos_to.col - pos_from.row) > 1 ||
-        (abs(pos_to.row - pos_from.row) == 1 && abs(pos_to.col - pos_from.col) == 1)) {
-        std::cout << __FUNCTION__ << ":: wrong parameters, pos_to should near the pos_from!" << std::endl;
-        return MD_UNKNOWN;
-    }
-
-    if (pos_to.row - pos_from.row > 0)
-        return MD_SOUTH;
-    else
-        return MD_NORTH;
-
-    if (pos_to.col - pos_from.col > 0)
-        return MD_EAST;
-    else
-        return MD_WEST;
-
-    return MD_UNKNOWN;
+bool Player:: game_mode_both() {
+    return (0 != (m_game_mode & GM_GET_GOLD)) && (0 != (m_game_mode & GM_KILL_WUMPUS));
 }

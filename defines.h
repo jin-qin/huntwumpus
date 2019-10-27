@@ -56,12 +56,11 @@ namespace std {
         std::size_t operator()(Position const& pos) const noexcept {
             std::size_t h1 = std::hash<int>()(pos.row);
             std::size_t h2 = std::hash<int>()(pos.col);
-            std::size_t h3 = std::hash<int>()(pos.priority);
-            return (h1 ^ (h2 << 1) >> 1) ^ (h3 << 1);
+            return (h1 ^ (h2 << 1) >> 1);
         }
     };
 }
 
-typedef std::vector< Position > NeighborsList;
+typedef std::vector< Position > PositionList;
 
 #endif

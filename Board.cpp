@@ -19,17 +19,12 @@ void Board::display_board() {
     util::display_board(m_map);
 }
 
-NeighborsList Board::neighbors(const Position &pos) {
-    return util::neighbors(m_rows, m_cols, pos);
+std::shared_ptr<Tile> Board::tile(const Position &pos) {
+    return m_map[pos.row][pos.col];
 }
 
-int Board::cost(const Position &pos1, const Position &pos2) {
-    auto nbs1 = neighbors(pos1);
-    for (int i = 0; i < nbs1.size(); i++)
-        if (nbs1[i].row == pos2.row && nbs1[i].col == pos2.col)
-            return 1;
-
-    return -1;
+PositionList Board::neighbors(const Position &pos) {
+    return util::neighbors(m_rows, m_cols, pos);
 }
 
 void Board::generate_new_map(int rows, int cols) {
@@ -56,7 +51,8 @@ void Board::generate_new_map(int rows, int cols) {
     }
     m_pos_wumpus.row = ind_wumpus / cols;
     m_pos_wumpus.col = ind_wumpus % cols;
-    m_map[m_pos_wumpus.row][m_pos_wumpus.col ]->add_state(Tile::TS_WUMPUS);
+    m_map[m_pos_wumpus.row][m_pos_wumpus.col]->add_state(Tile::TS_WUMPUS);
+    m_map[m_pos_wumpus.row][m_pos_wumpus.col]->add_state(Tile::TS_DETERMINED);
     generate_smelly_of_wumpus(m_pos_wumpus);
     
     // generate pits.
@@ -78,6 +74,7 @@ void Board::generate_new_map(int rows, int cols) {
                 m_map[i][j]->remove_state(Tile::TS_SMELLY);
 
                 m_map[i][j]->add_state(Tile::TS_PIT);
+                m_map[i][j]->add_state(Tile::TS_DETERMINED);
                 generate_breezy_of_pit(Position(i, j));
             }
         }

@@ -9,21 +9,27 @@
 #include "Tile.h"
 #include "Board.h"
 #include <memory>
-#include <unordered_map>
 
 class Board;
 class KnowledgeBase;
 
 class Player {
-    typedef std::unordered_map<Position, Position> PathMap;
-    typedef std::unordered_map<Position, int> CostMap;
+public:
+    enum GameMode {
+        GM_UNKNOWN      = 0x0000,
+        GM_GET_GOLD     = 0x0001,
+        GM_KILL_WUMPUS  = 0x0002
+    };
 
 public:
     Player(std::weak_ptr<Board> board);
 
+    inline void set_game_mode(GameMode gm) { m_game_mode = gm; }
     inline Position curr_pos() { return m_curr_pos; }
+    inline int score() { return m_score; };
+    inline bool game_over() { return m_game_over; }
 
-    Position select_move();
+    PositionList select_move();
 
 private:
     void init_kb(); // init knowledge base.
@@ -44,18 +50,27 @@ private:
     void climb_out();
     void back_to_entrance();
 
-    int get_degree_by_direction(MoveDirection md);
+    PositionList best_move(const Position &pos);
+    PositionList select_best_move(const PositionList &pref_mvs);
 
-    MoveDirection get_direction_by_pos(const Position &pos_from, const Position &pos_to);
-    MoveDirection get_direction_by_pos(const Position &pos);
+    MoveDirection next_direction(const Position &pos_to);
 
-    /**
-     * @brief perform A* algorithm to get the mininum cost path.
-     */
-    PathMap calc_best_path();
-    int rotate_cost(const Position &pos_from, const Position &pos_to);
-    int heuristic(const Position &pos1, const Position &pos2);
-    NeighborsList available_neighbors(const Position &pos);
+    void add_new_knowledge();
+
+    void check_move_result();
+
+    void on_grab_gold();
+
+    bool mission_complete();
+    void check_mission_compelete();
+    
+    void on_game_over();
+
+    std::shared_ptr<Tile> current_tile();
+
+    bool game_mode_get_gold_only();
+    bool game_mode_kill_wumpus_only();
+    bool game_mode_both();
 
 private:
     std::weak_ptr<Board> m_board; // this is not cheating, since Board class does not provide map info.
@@ -65,10 +80,15 @@ private:
     int m_curr_degree = 90; // initial degree is 90 degree, means direction face to the right (i.e. east).
                             // 0 <-> north, 90 <-> east, 180 <-> south, 270 <-> west.
 
-    Position m_curr_pos;
+    Position m_curr_pos = Position(0, 0);
 
     bool m_arrow_throwed = false;
     bool m_has_gold = false;
+    bool m_wumpus_killed = false;
+
+    GameMode m_game_mode = GM_GET_GOLD;
+
+    bool m_game_over = false;
 };
 
 #endif //PLAYER_H
