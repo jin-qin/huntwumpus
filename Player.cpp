@@ -261,6 +261,13 @@ MoveDirection Player::get_direction_by_pos(const Position &pos) {
 }
 
 MoveDirection Player::get_direction_by_pos(const Position &pos_from, const Position &pos_to) {
+    if (abs(pos_to.row - pos_from.row) > 1 ||
+        abs(pos_to.col - pos_from.row) > 1 ||
+        (abs(pos_to.row - pos_from.row) == 1 && abs(pos_to.col - pos_from.col) == 1)) {
+        std::cout << __FUNCTION__ << ":: wrong parameters, pos_to should near the pos_from!" << std::endl;
+        return MD_UNKNOWN;
+    }
+
     if (pos_to.row - pos_from.row > 0)
         return MD_SOUTH;
     else
