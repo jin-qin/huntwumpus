@@ -67,7 +67,9 @@ void Player::move(MoveDirection md) {
     rotate_to(md);
 }
 
-int Player::select_move() {
+Position Player::select_move() {
+    if (!m_kb) return Position(-1, -1);
+    
     // if there are no adjacent dangers
     // if (!knownBoard[currPosX][currPosY].is_breezy() && !knownBoard[currPosX][currPosY].is_smelly()) {
     //     thisMove = find_tile_not_yet_visited(possibleMoves);
@@ -76,7 +78,7 @@ int Player::select_move() {
     // move(thisMove);
     // return thisMove;
 
-	return 0;
+	return Position(-1, -1);
 }
 
 void Player::rotate_to(MoveDirection md) {
@@ -94,16 +96,17 @@ void Player::shoot(MoveDirection md) {
 
     // try to kill wumpus
     auto board = m_board.lock();
-    board->try_kill_wumpus(m_curr_pos, md);
+    bool wumpus_killed = board->try_kill_wumpus(m_curr_pos, md);
 
     // update knowledge base to mark wumpus is killed.
-    // TO DO
+    if (!m_kb) return;
+    if (wumpus_killed) m_kb->set_wumpus_killed();
 
     m_score -= 11; // -1 for action shoot, -10 for using up arrows.
 }
 
 void Player::grab_gold() {
-    // TO DO
+    m_has_gold = true;
 
     m_score -= 1;
 }
@@ -205,36 +208,6 @@ NeighborsList Player::available_neighbors(const Position &pos) {
     }
 
     return nbs;
-}
-
-int Player::find_tile_not_yet_visited(int possibleMoves[4]) {
-    // if (possibleMoves[0] != -1) { // check if north tile has been visited
-    //     if (!knownBoard[currPosX][currPosY-1].player_been_here()) {
-    //         return possibleMoves[0];
-    //     }
-    // }
-    // if (possibleMoves[1] != -1) { // check if east tile has been visited
-    //     if (!knownBoard[currPosX+1][currPosY].player_been_here()) {
-    //         return possibleMoves[1];
-    //     }
-    // }
-    // if (possibleMoves[2] != -1) { // check if south tile has been visited
-    //     if (!knownBoard[currPosX][currPosY+1].player_been_here()) {
-    //         return possibleMoves[2];
-    //     }
-    // }
-    // if (possibleMoves[3] != -1) { // check is west tile has been visited
-    //     if (!knownBoard[currPosX-1][currPosY].player_been_here()) {
-    //         return possibleMoves[3];
-    //     }
-    // }
-    // for (int i = 0; i < 4; i++) {
-    //     if (possibleMoves[i] != -1) {
-    //         return possibleMoves[i];
-    //     }
-    // }
-
-	return 0;
 }
 
 int Player::get_degree_by_direction(MoveDirection md) {

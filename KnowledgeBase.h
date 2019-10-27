@@ -16,6 +16,8 @@ public:
 
     bool is_safe(const Position &pos);
 
+    void set_wumpus_killed();
+
     void create_knowledge(int rows, int cols);
     void add_knowledge(const Position &pos, Tile status);
     void analyze_knowledge(const Position &pos);
@@ -29,11 +31,15 @@ private:
     void infer_pit_wumpus(const Position &pos);
     void infer_history(const Position &pos);
 
+    void clear_wumpus_smelly();
+
 private:
-    int m_row_len = 0, m_col_len = 0, m_counter = 0;
+    int m_row_len = 0, m_col_len = 0;
     Board::Map m_map; //Store information of board
 
     std::vector<Position> m_history_pos; // History positions
+
+    bool m_wumpus_killed = false;
 };
 
 

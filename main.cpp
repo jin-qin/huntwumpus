@@ -19,7 +19,7 @@ int main(int argc, const char * argv[]) {
     Player player(board);
     cout << player.curr_pos().row << " " << player.curr_pos().col << endl;
     
-    cout << player.select_move() << endl;
+    // cout << player.select_move() << endl;
     
     cout << player.curr_pos().row << " " << player.curr_pos().col << endl;
     

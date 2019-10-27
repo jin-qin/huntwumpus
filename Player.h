@@ -23,7 +23,7 @@ public:
 
     inline Position curr_pos() { return m_curr_pos; }
 
-    int select_move();
+    Position select_move();
 
 private:
     void init_kb(); // init knowledge base.
@@ -43,8 +43,6 @@ private:
     void grab_gold();
     void climb_out();
     void back_to_entrance();
-
-    int find_tile_not_yet_visited(int possibleMoves[4]);
 
     int get_degree_by_direction(MoveDirection md);
 
@@ -70,6 +68,7 @@ private:
     Position m_curr_pos;
 
     bool m_arrow_throwed = false;
+    bool m_has_gold = false;
 };
 
 #endif //PLAYER_H
