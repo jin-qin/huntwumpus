@@ -25,6 +25,7 @@ public:
     std::shared_ptr<Tile> tile(const Position &pos);
 
     void generate_new_map(int rows, int cols);
+    void set_map(const Map &map);
 
     inline int rows() {return m_rows;}
     inline int cols() {return m_cols;}

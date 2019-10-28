@@ -82,6 +82,16 @@ void Board::generate_new_map(int rows, int cols) {
     
 }
 
+void Board::set_map(const Map &map) {
+    if (map.size() <= 0 ||
+        map[0].size() <= 0) {
+        return;
+    }
+    m_map = map;
+    m_rows = map.size();
+    m_cols = map[0].size();
+}
+
 void Board::generate_breezy_of_pit(const Position &pos) {
     auto row = pos.row;
     auto col = pos.col;
