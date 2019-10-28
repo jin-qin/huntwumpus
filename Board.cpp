@@ -52,7 +52,7 @@ void Board::generate_new_map(int rows, int cols) {
     m_pos_wumpus.row = ind_wumpus / cols;
     m_pos_wumpus.col = ind_wumpus % cols;
     m_map[m_pos_wumpus.row][m_pos_wumpus.col]->add_state(Tile::TS_WUMPUS);
-    m_map[m_pos_wumpus.row][m_pos_wumpus.col]->add_state(Tile::TS_DETERMINED);
+    m_map[m_pos_wumpus.row][m_pos_wumpus.col]->add_state(Tile::TS_WUMPUS_DETERMINED);
     generate_smelly_of_wumpus(m_pos_wumpus);
     
     // generate pits.
@@ -74,7 +74,7 @@ void Board::generate_new_map(int rows, int cols) {
                 m_map[i][j]->remove_state(Tile::TS_SMELLY);
 
                 m_map[i][j]->add_state(Tile::TS_PIT);
-                m_map[i][j]->add_state(Tile::TS_DETERMINED);
+                m_map[i][j]->add_state(Tile::TS_PIT_DETERMINED);
                 generate_breezy_of_pit(Position(i, j));
             }
         }
@@ -90,6 +90,17 @@ void Board::set_map(const Map &map) {
     m_map = map;
     m_rows = map.size();
     m_cols = map[0].size();
+
+    for (int i = 0; i < m_rows; i++) {
+        for (int j = 0; j < m_cols; j++) {
+            if (m_map[i][j]->has_wumpus()) {
+                m_pos_wumpus =  Position(i, j);
+            }
+            if (m_map[i][j]->has_gold()) {
+                m_pos_gold =  Position(i, j);
+            }
+        }
+    }
 }
 
 void Board::generate_breezy_of_pit(const Position &pos) {
@@ -149,8 +160,8 @@ bool Board::try_kill_wumpus(const Position &pos, MoveDirection md) {
 
     if (col == col_wumpus &&
         (md == MD_NORTH || md == MD_SOUTH)) {
-        if (((row_wumpus - row > 0) && (md == MD_NORTH)) ||
-            ((row_wumpus - row < 0) && (md == MD_SOUTH)))
+        if (((row_wumpus - row > 0) && (md == MD_SOUTH)) ||
+            ((row_wumpus - row < 0) && (md == MD_NORTH)))
             wumpus_killed = true;
     }
 

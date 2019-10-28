@@ -6,6 +6,8 @@
 #define DEFINES_H
 
 #include <functional>
+#include <set>
+#include <vector>
 
 template<typename T> void safe_delete(T*& a) {
   if (!a) return;

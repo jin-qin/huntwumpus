@@ -72,10 +72,58 @@ PositionList KnowledgeBase::available_history_neighbors(const Position &pos) con
     return avail_his_nbs;
 }
 
-void KnowledgeBase::set_wumpus_killed() {
+void KnowledgeBase::on_wumpus_killed() {
+    std::cout << __FUNCTION__ << std::endl;
+    
     m_wumpus_killed = true;
+    m_pos_wumpus = Position(-1, -1);
 
     clear_wumpus_smelly();
+}
+
+void KnowledgeBase::on_kill_wumpus_failed(const Position &pos, MoveDirection md) {
+    switch (md) {
+        case MD_UNKNOWN:
+            return;
+        case MD_NORTH: {
+            for (int i = pos.row; i >= 0; i--) {
+                m_map[i][pos.col]->remove_state(Tile::TS_WUMPUS);
+                m_map[i][pos.col]->add_determined(Tile::TS_WUMPUS);
+            }
+            return;
+        }
+        case MD_SOUTH: {
+            for (int i = pos.row; i < m_row_len; i++) {
+                m_map[i][pos.col]->remove_state(Tile::TS_WUMPUS);
+                m_map[i][pos.col]->add_determined(Tile::TS_WUMPUS);
+            }
+            return;
+        }
+        case MD_WEST: {
+            for (int i = pos.col; i >= 0; i--) {
+                m_map[pos.row][i]->remove_state(Tile::TS_WUMPUS);
+                m_map[i][pos.col]->add_determined(Tile::TS_WUMPUS);
+            }
+            return;
+        }
+        case MD_EAST: {
+            for (int i = pos.col; i < m_col_len; i++) {
+                m_map[pos.row][i]->remove_state(Tile::TS_WUMPUS);
+                m_map[i][pos.col]->add_determined(Tile::TS_WUMPUS);
+            }
+            return;
+        }
+        default:
+            return;
+    }
+}
+
+bool KnowledgeBase::wumpus_found() {
+    return m_pos_wumpus != Position(-1, -1);
+}
+
+PositionList KnowledgeBase::possible_wumpus_positions() {
+    return m_possible_wumpus_positions;
 }
   
 void KnowledgeBase::create_knowledge(int rows, int cols){ // Initialize the knowledge board
@@ -104,9 +152,18 @@ void KnowledgeBase::add_knowledge(const Position &pos, Tile status){ // Receive 
     for (int i = 0; i < target_states.size(); i++) {
         tile->add_state(target_states[i].first);
         auto nbs = util::neighbors(m_row_len, m_col_len, pos);
-        for (int j = 0; j < nbs.size(); j++){
-            if(!m_map[nbs[j].row][nbs[j].col]->is_safe()){
-                m_map[nbs[j].row][nbs[j].col]->add_state(target_states[i].second);
+        for (int j = 0; j < nbs.size(); j++) {
+            auto t = m_map[nbs[j].row][nbs[j].col];
+            auto s = target_states[i].second;
+            if(!t->is_safe()) {
+                t->add_state(s);
+                if (s == Tile::TS_WUMPUS && 
+                    t->maybe_wumpus() && 
+                    !util::position_in(nbs[j], m_possible_wumpus_positions)) {
+                    m_possible_wumpus_positions.push_back(nbs[j]);
+                }
+                else if (s == Tile::TS_WUMPUS && t->mustnot_wumpus())
+                    t->remove_state(s);
             }
         }
     }
@@ -114,6 +171,7 @@ void KnowledgeBase::add_knowledge(const Position &pos, Tile status){ // Receive 
     tile->remove_state(Tile::TS_PIT);
     tile->remove_state(Tile::TS_WUMPUS);
     tile->add_state(Tile::TS_SAFE);
+    util::erase_position(pos, m_possible_wumpus_positions);
 
     add_knowledge_into_history(pos);
 
@@ -157,6 +215,7 @@ void KnowledgeBase::check_add_safe(const Position &pos) {
             m_map[nbs[i].row][nbs[i].col]->add_state(Tile::TS_SAFE);
             m_map[nbs[i].row][nbs[i].col]->remove_state(Tile::TS_PIT);
             m_map[nbs[i].row][nbs[i].col]->remove_state(Tile::TS_WUMPUS);
+            util::erase_position(nbs[i], m_possible_wumpus_positions);
         }
     }
 }
@@ -179,8 +238,33 @@ void KnowledgeBase::infer_pit_wumpus(const Position &pos) {
         if (vec_unsafe.size() == 1) {
             auto p = vec_unsafe[0];
             m_map[p.row][p.col]->set_state(state);
-            m_map[p.row][p.col]->add_state(Tile::TS_DETERMINED);
+            m_map[p.row][p.col]->add_determined(state);
+            
+            check_found_wumpus(p);
         }
+    }
+}
+
+void KnowledgeBase::check_found_wumpus(const Position &pos) {
+    auto t = tile(pos);
+    if (!t->mustbe_wumpus()) return;
+
+    m_pos_wumpus = pos;
+
+    for (int i = 0; i < m_row_len; i++) {
+        for (int j = 0; j < m_col_len; j++) {
+            if (m_map[i][j]->maybe_wumpus()) {
+                m_map[i][j]->remove_state(Tile::TS_WUMPUS);
+                m_map[i][j]->add_determined(Tile::TS_WUMPUS);
+            }
+        }
+    }
+
+    for (auto it = m_possible_wumpus_positions.begin(); it != m_possible_wumpus_positions.end();) {
+        if (*it != pos)
+            m_possible_wumpus_positions.erase(it);
+        else
+            ++it;
     }
 }
 

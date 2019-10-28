@@ -31,11 +31,14 @@ public:
 
     PositionList select_move();
 
+    void display_knowledgebase();
+
 private:
     void init_kb(); // init knowledge base.
 
     // actions
     void move(MoveDirection md);
+    void move_by_path(const PositionList &path);
     /**
      * @brief each rotation can only rotate 90 degrees.
      * each rotation will make score -= 1.
@@ -50,8 +53,10 @@ private:
     void climb_out();
     void back_to_entrance();
 
+    PositionList prefer_move(const Position &pos);
     PositionList best_move(const Position &pos);
-    PositionList select_best_move(const PositionList &pref_mvs);
+    PositionList gamble_move(const Position &pos);
+    PositionList select_mincost_move(const PositionList &pref_mvs);
 
     MoveDirection next_direction(const Position &pos_to);
 
@@ -68,9 +73,20 @@ private:
 
     std::shared_ptr<Tile> current_tile();
 
+    bool game_mode_kill_wumpus();
     bool game_mode_get_gold_only();
     bool game_mode_kill_wumpus_only();
     bool game_mode_both();
+
+    bool can_kill_wumpus();
+    /**
+     * @brief no safe moves, have to try kill the wumpus and get available safe moves.
+     * we can get possible wumpus positions from knowledge base and select one randomly.
+     */
+    bool need_kill_wumpus();
+    void try_kill_wumpus();
+
+    Position best_position_to_kill_wumpus(const Position &pos);
 
 private:
     std::weak_ptr<Board> m_board; // this is not cheating, since Board class does not provide map info.

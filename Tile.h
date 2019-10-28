@@ -16,8 +16,9 @@ public:
     TS_GOLD                 = 0x0010,     // May be gold if the state is not DETERMINED.
     TS_PIT                  = 0x0020,     // May be a pit if the state is not DETERMINED.
     TS_PLAYER_HERE          = 0x0040,
-    TS_DETERMINED           = 0x0080,
-    TS_SAFE                 = 0x0100      //Shuo added this var to represent the safe status
+    TS_PIT_DETERMINED       = 0x0080,
+    TS_WUMPUS_DETERMINED    = 0x0100,
+    TS_SAFE                 = 0x0200,     //Shuo added this var to represent the safe status
   };
 
   Tile();
@@ -32,6 +33,8 @@ public:
   void remove_state(int ts);
   TileState state();
 
+  void add_determined(TileState ts);
+
   void update_state();
 
   bool is_entrance();
@@ -40,15 +43,19 @@ public:
   bool has_wumpus();
   bool maybe_wumpus();
   bool mustbe_wumpus();
+  bool mustnot_wumpus();
   bool has_pit();
   bool maybe_pit();
   bool mustbe_pit();
+  bool mustnot_pit();
   bool has_gold();
   bool player_been_here();
-  bool determined();
-  bool is_safe();//shuo added
+  bool is_safe();
 
 private:
+  bool wumpus_determined();
+  bool pit_determined();
+
   TileState m_state = TS_UNKNOWN;
 };
 

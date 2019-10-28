@@ -17,18 +17,16 @@ int main(int argc, const char * argv[]) {
     board->generate_new_map(5, 5);
     board->display_board();
     Player player(board);
-    cout << player.curr_pos().row << " " << player.curr_pos().col << endl;
+    player.set_game_mode((Player::GameMode)(Player::GM_GET_GOLD | Player::GM_KILL_WUMPUS));
 
     while (!player.game_over()) {
         auto result = player.select_move();
         if (result.empty()) {
             break;
         }
-
-        cout << player.curr_pos().row << " " << player.curr_pos().col << endl;
     }
 
-    cout << player.score() << endl;
+    cout << "game over, score: " << player.score() << endl;
 
     return 0;
 }

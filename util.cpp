@@ -10,40 +10,42 @@
 namespace util {
 
 void display_board(const Board::Map &map) {   
+    std::cout << __FUNCTION__ << ":: " << "####### START #######" << std::endl;
     for (size_t i = 0; i < map.size(); i++) {
         for (size_t j = 0; j < map[i].size(); j++) {
             int empty = 1;
             std::cout << "  " << i << "," << j << ": ";
             if (map[i][j]->is_entrance()) {
                 empty = 0;
-                std::cout << "entrance";
+                std::cout << "E";
             }
             if (map[i][j]->is_breezy()) {
                 empty = 0;
-                std::cout << "breezy";
+                std::cout << "B";
             }
             if (map[i][j]->is_smelly()) {
                 empty = 0;
-                std::cout << "smelly";
+                std::cout << "S";
             }
             if (map[i][j]->has_wumpus()) {
                 empty = 0;
-                std::cout << "wumpus";
+                std::cout << "W";
             }
             if (map[i][j]->has_gold()) {
                 empty = 0;
-                std::cout << "gold";
+                std::cout << "G";
             }
             if (map[i][j]->has_pit()) {
                 empty = 0;
-                std::cout << "pit";
+                std::cout << "P";
             }
             if (empty) {
-                std::cout << "empty";
+                std::cout << "N";
             }
         }
         std::cout << std::endl;
     }
+    std::cout << __FUNCTION__ << ":: " << "######## END ########" << std::endl;
 }
 
 Board::Map create_new_map(int rows, int cols) {
@@ -252,11 +254,9 @@ MoveDirection direction_by_degree(int degree) {
 }
 
 MoveDirection next_direction(const Position &pos_from, const Position &pos_to) {
-    if (abs(pos_to.row - pos_from.row) > 1 ||
-        abs(pos_to.col - pos_from.col) > 1 ||
-        (abs(pos_to.row - pos_from.row) == 1 && abs(pos_to.col - pos_from.col) == 1)) {
+    if ((abs(pos_to.row - pos_from.row) == 1 && abs(pos_to.col - pos_from.col) == 1)) {
         std::cout << __FUNCTION__ << ":: wrong parameters, pos_to: " \
-        << pos_to.row << pos_to.col << " should near the pos_from: " \
+        << pos_to.row << pos_to.col << " should not in the diags of pos_from: " \
         << pos_from.row << pos_from.col << std::endl;
         return MD_UNKNOWN;
     }
@@ -272,6 +272,37 @@ MoveDirection next_direction(const Position &pos_from, const Position &pos_to) {
         return MD_WEST;
 
     return MD_UNKNOWN;
+}
+
+PositionList cross_positions(int rows, int cols, const Position &pos) {
+    PositionList corss_pos_list;
+    for (int i = 0; i < cols; i++) {
+        if (i == pos.col) continue;
+        corss_pos_list.push_back(Position(pos.row, i));
+    }
+    for (int i = 0; i < rows; i++) {
+        if (i == pos.row) continue;
+        corss_pos_list.push_back(Position(i, pos.col));
+    }
+    return corss_pos_list;
+}
+
+bool position_in(const Position &pos, const PositionList &pos_list) {
+    for (int i = 0; i < pos_list.size(); i++) {
+        if (pos == pos_list[i])
+            return true;
+    }
+
+    return false;
+}
+
+void erase_position(const Position &pos, PositionList &pos_list) {
+    for (auto it = pos_list.begin(); it != pos_list.end();) {
+        if (pos == *it)
+            pos_list.erase(it);
+        else
+            ++it;
+    }
 }
 
 }

@@ -51,6 +51,12 @@ MoveDirection direction_by_degree(int degree);
 
 MoveDirection next_direction(const Position &pos_from, const Position &pos_to);
 
+PositionList cross_positions(int rows, int cols, const Position &pos);
+
+bool position_in(const Position &pos, const PositionList &pos_list);
+
+void erase_position(const Position &pos, PositionList &pos_list);
+
 }
 
 #endif // UTIL_H
