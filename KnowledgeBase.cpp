@@ -162,8 +162,6 @@ void KnowledgeBase::add_knowledge(const Position &pos, Tile status){ // Receive 
                     !util::position_in(nbs[j], m_possible_wumpus_positions)) {
                     m_possible_wumpus_positions.push_back(nbs[j]);
                 }
-                else if (s == Tile::TS_WUMPUS && t->mustnot_wumpus())
-                    t->remove_state(s);
             }
         }
     }

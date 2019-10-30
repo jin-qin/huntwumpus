@@ -16,9 +16,7 @@ aux_source_directory(./json DIR_JSONCPP)
 
 add_executable(huntwumpus ${DIR_SRCS} ${DIR_JSONCPP})
 
-set (DIR_SRCS_NO_MAIN ${DIR_SRCS})
-list(REMOVE_ITEM DIR_SRCS_NO_MAIN "./main.cpp")
-
-add_executable(test_case_0 ${DIR_SRCS_NO_MAIN} ${DIR_JSONCPP} unittests/test_case_0.cpp)
-
-add_test( test_case_0 test_case_0)
+# Test cases
+add_test(test_case_0 huntwumpus "../test_data/maps/map_0.json")
+add_test(test_case_1 huntwumpus "../test_data/maps/map_1.json")
+add_test(test_case_2 huntwumpus "../test_data/maps/map_2.json")
