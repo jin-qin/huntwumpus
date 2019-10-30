@@ -11,10 +11,11 @@ set (CMAKE_CXX_STANDARD 11)
 set(HuntWumpus_VERSION_MAJOR 1)
 set(HuntWumpus_VERSION_MINOR 0)
 
-aux_source_directory(. DIR_SRCS)
-aux_source_directory(./json DIR_JSONCPP)
+file(GLOB INCS "*.h")
+file(GLOB SRCS "*.cpp")
+file(GLOB INCS_JSON "./json/*.h")
 
-add_executable(huntwumpus ${DIR_SRCS} ${DIR_JSONCPP})
+add_executable(huntwumpus ${INCS} ${SRCS} ${INCS_JSON})
 
 # Test cases
 add_test(test_case_0 huntwumpus "../test_data/maps/map_0.json")
