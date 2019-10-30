@@ -25,9 +25,12 @@ public:
     Player(std::weak_ptr<Board> board);
 
     inline void set_game_mode(GameMode gm) { m_game_mode = gm; }
+    inline void set_game_mode(int gm) { m_game_mode = static_cast<GameMode>(gm); }
     inline Position curr_pos() { return m_curr_pos; }
     inline int score() { return m_score; };
     inline bool game_over() { return m_game_over; }
+    inline bool wumpus_killed() { return m_wumpus_killed; }
+    inline bool has_gold() { return m_has_gold; }
 
     PositionList select_move();
 

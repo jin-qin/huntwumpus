@@ -12,7 +12,7 @@
 namespace util {
 
 void display_board(const Board::Map &map) {   
-    std::cout << __FUNCTION__ << ":: " << "####### START #######" << std::endl;
+    std::cout << __FUNCTION__ << ":: " << "####### MAP START #######" << std::endl;
     for (size_t i = 0; i < map.size(); i++) {
         for (size_t j = 0; j < map[i].size(); j++) {
             int empty = 1;
@@ -47,7 +47,7 @@ void display_board(const Board::Map &map) {
         }
         std::cout << std::endl;
     }
-    std::cout << __FUNCTION__ << ":: " << "######## END ########" << std::endl;
+    std::cout << __FUNCTION__ << ":: " << "######## MAP END ########" << std::endl;
 }
 
 Board::Map create_new_map(int rows, int cols) {
@@ -198,7 +198,6 @@ calc_best_path(const KnowledgeBase &kb,
     cost_so_far[pos_from] = 0;
     degrees[pos_from] = degree_from;
 
-    // std::cout << __FUNCTION__ << ":: goal: " << goal.row << goal.col << std::endl;
     while (!frontier.empty()) {
         auto current = frontier.top();
         frontier.pop();
@@ -228,35 +227,14 @@ calc_best_path(const KnowledgeBase &kb,
             }
         }
     }
-    
-    // std::cout << __FUNCTION__ << ":: ### path map" << std::endl;
-    // for (auto it = came_from.begin(); it != came_from.end(); ++it) {
-    //     std::cout << __FUNCTION__ << ":: " << it->first.row << it->first.col << ";" \
-    //               << it->second.row << it->second.col << std::endl;
-    // }
-    // std::cout << __FUNCTION__ << ":: ############" << std::endl;
-    // std::cout << __FUNCTION__ << ":: ### cost map" << std::endl;
-    // for (auto it = cost_so_far.begin(); it != cost_so_far.end(); ++it) {
-    //     std::cout << __FUNCTION__ << ":: " << it->first.row << it->first.col << ";" \
-    //               << it->second << std::endl;
-    // }
-    // std::cout << __FUNCTION__ << ":: ############" << std::endl;
 
     auto pos = came_from[goal];
     best_path.push_back(goal);
-    // std::cout << __FUNCTION__ << ":: goal came from: " << pos.row << pos.col << std::endl;
     while(came_from[pos] != Position(-1, -1)) {
-        // std::cout << __FUNCTION__ << ":: pos: " << pos.row << pos.col << std::endl;
         best_path.push_back(pos);
         pos = came_from[pos];
     }
     reverse(best_path.begin(), best_path.end());
-
-    // std::cout << __FUNCTION__ << ":: best path: ";
-    // for (int i = 0; i < best_path.size(); i++) {
-    //     std::cout << best_path[i].row << best_path[i].col << "->";
-    // }
-    // std::cout << std::endl;
 
     return std::make_pair(best_path, cost_so_far);
 }
@@ -367,6 +345,17 @@ void erase_position(const Position &pos, PositionList &pos_list) {
         else
             ++it;
     }
+}
+
+std::string death_reason(Tile tile) {
+    if (tile.mustbe_pit()) {
+        return std::string("Oops! You are killed by a PIT!");
+    }
+    if (tile.mustbe_wumpus()) {
+        return std::string("Oops! You are killed by the WUMPUS!");
+    }
+
+	return std::string("Wait, wait...You died for unknown reasons? Lol, are you killed by the air?");
 }
 
 }

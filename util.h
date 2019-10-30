@@ -42,7 +42,7 @@ int min_cost(const KnowledgeBase &kb, const Position &pos_from, const Position &
  * @brief perform A* algorithm to get the mininum cost path.
  */
 std::pair<PositionList, CostMap>
-calc_best_path(const KnowledgeBase &kb, const Position &pos_from, const Position &pos_to, int degree_from);
+calc_best_path(const KnowledgeBase& kb, const Position& pos_from, const Position& pos_to, int degree_from);
 /**
  * @brief calculate the cost between pos1 and pos2 which should be neighbors
  * @return return the cost if they are neighbors, otherwise return -1.
@@ -62,6 +62,7 @@ bool position_in(const Position &pos, const PositionList &pos_list);
 
 void erase_position(const Position &pos, PositionList &pos_list);
 
+std::string death_reason(Tile tile);
 }
 
 #endif // UTIL_H

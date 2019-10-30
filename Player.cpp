@@ -119,13 +119,13 @@ PositionList Player::prefer_move(const Position &pos) {
 PositionList Player::best_move(const Position &pos) {
     auto safe_nbs = m_kb->safe_neighbors(pos);
     if (safe_nbs.size() > 0) {
-        std::cout << __FUNCTION__ << ":: safe_neighbors: " << safe_nbs.size() << std::endl;
+        // std::cout << __FUNCTION__ << ":: safe_neighbors: " << safe_nbs.size() << std::endl;
         return select_mincost_move(safe_nbs);
     }
 
     auto safe_his_nbs = m_kb->safe_history_neighbors(pos);
     if (safe_his_nbs.size() > 0) {
-        std::cout << __FUNCTION__ << ":: safe_history_neighbors: " << safe_his_nbs.size() << std::endl;
+        // std::cout << __FUNCTION__ << ":: safe_history_neighbors: " << safe_his_nbs.size() << std::endl;
         return select_mincost_move(safe_his_nbs);
     }
 
@@ -135,13 +135,13 @@ PositionList Player::best_move(const Position &pos) {
 PositionList Player::gamble_move(const Position &pos) {
     auto avail_nbs = m_kb->available_neighbors(pos);
     if (avail_nbs.size() > 0) {
-        std::cout << __FUNCTION__ << ":: available_neighbors: " << avail_nbs.size() << std::endl;
+        // std::cout << __FUNCTION__ << ":: available_neighbors: " << avail_nbs.size() << std::endl;
         return select_mincost_move(avail_nbs);
     }
     
     auto avail_his_nbs = m_kb->available_history_neighbors(pos);
     if (avail_his_nbs.size() > 0) {
-        std::cout << __FUNCTION__ << ":: available_history_neighbors: " << avail_his_nbs.size() << std::endl;
+        // std::cout << __FUNCTION__ << ":: available_history_neighbors: " << avail_his_nbs.size() << std::endl;
         return select_mincost_move(avail_his_nbs);
     }
 
@@ -149,13 +149,16 @@ PositionList Player::gamble_move(const Position &pos) {
 }
 
 PositionList Player::select_mincost_move(const PositionList &pref_mvs) {
-    PositionList mv_path;
+	if (!m_kb) return PositionList();
+	auto possible_wumpus = m_kb->possible_wumpus_positions();
+	bool hunt_wumpus = game_mode_kill_wumpus() && possible_wumpus.size() > 0 ? true : false;
+	Position pos_wp = hunt_wumpus ? possible_wumpus[0] : Position(-1, -1);
 
+	PositionList mv_path;
     int min_cost = INT32_MAX;
     for (int i = 0; i < pref_mvs.size(); i++) {
         PositionList mv_path_tmp;
-        int cost = util::min_cost(*m_kb, m_curr_pos, pref_mvs[i], m_curr_degree, mv_path_tmp);
-        // std::cout << __FUNCTION__ << ":: min cost:" << cost << std::endl;
+        int cost = util::min_cost(*m_kb, m_curr_pos, pref_mvs[i], m_curr_degree, mv_path_tmp) - util::heuristic(pos_wp, m_curr_pos);
         if (min_cost > cost) {
             min_cost = cost;
             mv_path = mv_path_tmp;
@@ -238,6 +241,8 @@ void Player::check_move_result() {
     // check died
     if (curr_tile->mustbe_wumpus() ||
         curr_tile->mustbe_pit()) {
+        std::cout << util::death_reason(*curr_tile) << std::endl;
+        
         m_score -= 1000;
         on_game_over();
         return;
@@ -260,6 +265,7 @@ void Player::check_move_result() {
 }
 
 void Player::on_grab_gold() {
+    std::cout << __FUNCTION__ << std::endl;
     check_mission_compelete();
 }
 
