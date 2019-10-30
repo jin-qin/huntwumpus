@@ -37,12 +37,11 @@ Tile test_map[5][5] =
 int main()
 {
     auto board = make_shared<Board>();
-    auto map = util::create_new_map(5, 5);
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
-            *map[i][j] = test_map[i][j];
-        }
-    }
+	auto map = util::read_map("../test_data/maps/map_0.json");
+	if (map.empty()) {
+		return -1;
+	}
+
     board->set_map(map);
     board->display_board();
     Player player(board);

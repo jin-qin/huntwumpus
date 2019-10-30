@@ -3,9 +3,11 @@
 #include "Board.h"
 #include "KnowledgeBase.h"
 #include <iostream>
+#include <fstream>
 #include <queue>
 #include <algorithm>
 #include <functional>
+#include "json/json.h"
 
 namespace util {
 
@@ -67,6 +69,68 @@ Board::Map create_new_map(int rows, int cols) {
 
     return map;
 }
+
+Board::Map read_map(const std::string& map_file_path) {
+	std::ifstream ifs(map_file_path);
+	if (!ifs.is_open()) {
+		std::cout << __FUNCTION__ << ":: cannot find the map file! pls check your map file path!" << std::endl;
+		return Board::Map();
+	}
+
+	std::ostringstream tmp;
+	tmp << ifs.rdbuf();
+	std::string str_json = tmp.str();
+
+	Json::Reader json_reader;
+	Json::Value root;
+	if (!json_reader.parse(str_json, root)) {
+		std::cout << __FUNCTION__ << ":: wrong map file (must be legal json format!)!" << std::endl;
+		return Board::Map();
+	}
+
+	auto map_size = root["map_size"];
+	auto map_data = root["map_data"];
+	if (map_size.isNull() ||
+		map_data.isNull() ||
+		!map_data.isArray() ||
+		map_size["rows"].isNull() ||
+		map_size["cols"].isNull()) {
+
+		std::cout << __FUNCTION__ << ":: wrong map parameters, pls check again!" << std::endl;
+		return Board::Map();
+	}
+
+	auto rows = map_size["rows"].asInt();
+	auto cols = map_size["cols"].asInt();
+	auto new_map = create_new_map(rows, cols);
+	for (auto item: map_data) {
+		if (item["type"].isNull() || item["pos"].isNull() || 
+			item["pos"]["row"].isNull() || item["pos"]["col"].isNull()) {
+			std::cout << __FUNCTION__ << ":: wrong map parameters, pls check again!" << std::endl;
+			return Board::Map();
+		}
+		auto row = item["pos"]["row"].asInt();
+		auto col = item["pos"]["col"].asInt();
+		auto ts = get_tile_state_by_code(item["type"].asString());
+		new_map[row][col]->add_state(ts);
+	}
+
+	return new_map;
+}
+
+Tile::TileState get_tile_state_by_code(const std::string& code)
+{
+	if (code == "E")
+		return Tile::TS_ENTRANCE;
+	if (code == "P")
+		return Tile::TS_PIT;
+	if (code == "W")
+		return Tile::TS_WUMPUS;
+	if (code == "G")
+		return Tile::TS_GOLD;
+	return Tile::TileState();
+}
+
 
 PositionList neighbors(int rows, int cols, const Position &pos) {
     auto row = pos.row;
@@ -299,7 +363,7 @@ bool position_in(const Position &pos, const PositionList &pos_list) {
 void erase_position(const Position &pos, PositionList &pos_list) {
     for (auto it = pos_list.begin(); it != pos_list.end();) {
         if (pos == *it)
-            pos_list.erase(it);
+            it = pos_list.erase(it);
         else
             ++it;
     }

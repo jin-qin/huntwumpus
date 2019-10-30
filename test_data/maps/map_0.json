@@ -1,0 +1,12 @@
+{
+    "map_size": { "rows": 5, "cols": 5},
+    "map_data":[
+        { "pos": {"row": 0, "col": 0}, "type": "E" },
+        { "pos": {"row": 0, "col": 2}, "type": "P" },
+        { "pos": {"row": 3, "col": 0}, "type": "P" },
+        { "pos": {"row": 3, "col": 2}, "type": "W" },
+        { "pos": {"row": 3, "col": 3}, "type": "G" },
+        { "pos": {"row": 3, "col": 4}, "type": "P" },
+        { "pos": {"row": 4, "col": 1}, "type": "P" }
+    ]
+}

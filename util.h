@@ -6,7 +6,9 @@
 #define UTIL_H
 
 #include "Board.h"
+#include "Tile.h"
 #include <unordered_map>
+#include <string>
 
 class KnowledgeBase;
 namespace util {
@@ -21,6 +23,9 @@ void display_board(const Board::Map &map);
  */ 
 Board::Map create_new_map(int rows, int cols);
 void destroy_map(Board::Map &map);
+
+Board::Map read_map(const std::string &map_file_path);
+Tile::TileState get_tile_state_by_code(const std::string &code);
 
 PositionList neighbors(int rows, int cols, const Position &pos);
 /**

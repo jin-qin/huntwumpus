@@ -52,7 +52,7 @@ PositionList KnowledgeBase::available_neighbors(const Position &pos, bool use_hi
         if (t->mustbe_wumpus() ||
             t->mustbe_pit() ||
             (!use_history && in_history(*it))) {
-            nbs.erase(it);
+            it = nbs.erase(it);
         } else {
             ++it;
         }
@@ -262,7 +262,7 @@ void KnowledgeBase::check_found_wumpus(const Position &pos) {
 
     for (auto it = m_possible_wumpus_positions.begin(); it != m_possible_wumpus_positions.end();) {
         if (*it != pos)
-            m_possible_wumpus_positions.erase(it);
+            it = it = m_possible_wumpus_positions.erase(it);
         else
             ++it;
     }

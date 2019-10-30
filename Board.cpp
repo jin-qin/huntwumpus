@@ -95,10 +95,13 @@ void Board::set_map(const Map &map) {
         for (int j = 0; j < m_cols; j++) {
             if (m_map[i][j]->has_wumpus()) {
                 m_pos_wumpus =  Position(i, j);
+				generate_smelly_of_wumpus(m_pos_wumpus);
             }
             if (m_map[i][j]->has_gold()) {
                 m_pos_gold =  Position(i, j);
             }
+			if (m_map[i][j]->has_pit())
+				generate_breezy_of_pit(Position(i, j));
         }
     }
 }
