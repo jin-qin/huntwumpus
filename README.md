@@ -28,3 +28,5 @@ There are three test maps in `./test_data/maps`:
 - `map_0.json` is the first map on the **Blackboard**.
 - `map_1.json` is the map  named **'Wumpus world 2'** on the **Blackboard**.
 - `map_2.json` is the map named **'Another wumpus map'** on the **Blackboard**.
+
+The outputs of these three test maps were pre-generated and put in `outputs.zip`
